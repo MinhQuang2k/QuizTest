@@ -8,8 +8,8 @@ import (
 func Migrate(db *gorm.DB) {
 	db.AutoMigrate(&UserModel{})
 	db.AutoMigrate(&PostModel{})
-	db.AutoMigrate(&PostModel{})
 	db.AutoMigrate(&CommentModel{})
+	db.AutoMigrate(&GroupQuestionModel{})
 }
 
 func SaveOne(data interface{}) error {

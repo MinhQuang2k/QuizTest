@@ -2,6 +2,7 @@ package main
 
 import (
 	"blog.com/common"
+	"blog.com/groupQuestions"
 	"blog.com/models"
 	"blog.com/posts"
 	"blog.com/users"
@@ -24,6 +25,7 @@ func main() {
 	v1.Use(users.AuthMiddleware(true))
 	posts.PostRegister(v1.Group("/posts"))
 	users.UserRegister(v1.Group("/user"))
+	groupQuestions.GroupQuestionRegister(v1.Group("/group-questions"))
 
 	r.Run()
 }

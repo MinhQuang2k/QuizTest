@@ -12,9 +12,9 @@ type Database struct {
 var DB *gorm.DB
 
 func Init() *gorm.DB {
-	dbUser := "admin"
-	dbPass := "Admin*123456"
-	dbName := "blog"
+	dbUser := "root"
+	dbPass := "root"
+	dbName := "quiztest"
 	dbHost := "localhost"
 	dbPort := "3306"
 
