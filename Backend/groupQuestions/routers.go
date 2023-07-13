@@ -5,8 +5,9 @@ import (
 )
 
 func GroupQuestionRegister(router *gin.RouterGroup) {
+	router.GET("/all", GroupQuestionGetAll)
 	router.GET("/", GroupQuestionGetPaging)
 	router.POST("/", GroupQuestionCreate)
-	// router.PUT("/:id", GroupQuestionUpdate)
-	// router.DELETE("/:id", GroupQuestionDelete)
+	router.PUT("/:id", GroupQuestionUpdate)
+	router.DELETE("/:id", GroupQuestionDelete)
 }

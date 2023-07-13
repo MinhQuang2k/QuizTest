@@ -111,3 +111,11 @@ func Bind(c *gin.Context, obj interface{}) error {
 	b := binding.Default(c.Request.Method, c.ContentType())
 	return c.ShouldBindWith(obj, b)
 }
+
+func GetFormatPaging(count int64, page int, size int) interface{} {
+	return gin.H{
+		"total": count,
+		"page":  page,
+		"size":  size,
+	}
+}

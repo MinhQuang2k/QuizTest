@@ -7,9 +7,7 @@ import (
 )
 
 type GroupQuestionModelValidator struct {
-	GroupQuestion struct {
-		Name string `form:"name" json:"name" binding:"max=2048"`
-	} `json:"groupQuestion"`
+	Name               string                    `form:"name" json:"name" binding:"max=2048"`
 	groupQuestionModel models.GroupQuestionModel `json:"-"`
 }
 
@@ -19,7 +17,7 @@ func NewGroupQuestionModelValidator() GroupQuestionModelValidator {
 
 func NewGroupQuestionModelValidatorFillWith(groupQuestionModel models.GroupQuestionModel) GroupQuestionModelValidator {
 	groupQuestionModelValidator := NewGroupQuestionModelValidator()
-	groupQuestionModelValidator.GroupQuestion.Name = groupQuestionModel.Name
+	groupQuestionModelValidator.Name = groupQuestionModel.Name
 	return groupQuestionModelValidator
 }
 
@@ -30,7 +28,7 @@ func (s *GroupQuestionModelValidator) Bind(c *gin.Context) error {
 	if err != nil {
 		return err
 	}
-	s.groupQuestionModel.Name = s.GroupQuestion.Name
+	s.groupQuestionModel.Name = s.Name
 	s.groupQuestionModel.User = myUserModel
 	return nil
 }

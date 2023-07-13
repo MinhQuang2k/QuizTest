@@ -11,7 +11,7 @@ type GroupQuestionSerializer struct {
 }
 
 type GroupQuestionResponse struct {
-	ID        uint   `json:"-"`
+	ID        uint   `json:"id"`
 	Name      string `json:"name"`
 	CreatedAt string `json:"createdAt"`
 	UpdatedAt string `json:"updatedAt"`
