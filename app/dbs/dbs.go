@@ -1,14 +1,14 @@
 package dbs
 
 import (
-	"goshop/pkg/logger"
+	"quiztest/pkg/logger"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	gormLogger "gorm.io/gorm/logger"
 
-	"goshop/app/models"
-	"goshop/config"
+	"quiztest/app/models"
+	"quiztest/config"
 )
 
 var Database *gorm.DB
@@ -36,10 +36,10 @@ func Init() {
 
 func Migrate() {
 	User := models.User{}
-	// Category := models.Category{}
+	Category := models.Category{}
 	// Exam := models.Exam{}
 	GroupQuestion := models.GroupQuestion{}
 	// Question := models.Question{}
-	// Subject := models.Subject{}
-	Database.AutoMigrate(&GroupQuestion, &User)
+	Subject := models.Subject{}
+	Database.AutoMigrate(&User, &GroupQuestion, &Category, &Subject)
 }

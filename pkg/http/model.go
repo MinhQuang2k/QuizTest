@@ -1,4 +1,4 @@
-package http
+package gohttp
 
 // Response body
 type Response struct {

@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"goshop/pkg/jtoken"
+	"quiztest/pkg/jtoken"
 )
 
 func JWTAuth() gin.HandlerFunc {

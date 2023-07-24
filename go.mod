@@ -1,4 +1,4 @@
-module goshop
+module quiztest
 
 go 1.20
 

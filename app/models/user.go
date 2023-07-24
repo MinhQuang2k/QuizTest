@@ -4,7 +4,7 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 
-	"goshop/pkg/utils"
+	"quiztest/pkg/utils"
 )
 
 type UserRole string

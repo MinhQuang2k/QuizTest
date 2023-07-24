@@ -4,15 +4,15 @@ import (
 	"context"
 	"errors"
 
-	"goshop/pkg/logger"
+	"quiztest/pkg/logger"
 
 	"golang.org/x/crypto/bcrypt"
 
-	"goshop/app/models"
-	"goshop/app/repositories"
-	"goshop/app/serializers"
-	"goshop/pkg/jtoken"
-	"goshop/pkg/utils"
+	"quiztest/app/models"
+	"quiztest/app/repositories"
+	"quiztest/app/serializers"
+	"quiztest/pkg/jtoken"
+	"quiztest/pkg/utils"
 )
 
 type IUserService interface {

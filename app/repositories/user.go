@@ -5,10 +5,10 @@ import (
 
 	"gorm.io/gorm"
 
-	"goshop/app/dbs"
-	"goshop/app/models"
-	"goshop/config"
-	"goshop/pkg/errors"
+	"quiztest/app/dbs"
+	"quiztest/app/models"
+	"quiztest/config"
+	"quiztest/pkg/errors"
 )
 
 type IUserRepository interface {

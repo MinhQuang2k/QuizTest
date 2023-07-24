@@ -9,7 +9,6 @@ type Subject struct {
 	Base
 	Name       string `json:"name"`
 	CategoryID string `json:"category_id"`
-	Category   *Category
 }
 
 func (subject *Subject) BeforeCreate(tx *gorm.DB) error {

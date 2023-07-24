@@ -4,12 +4,12 @@ import (
 	"strings"
 	"time"
 
-	"goshop/pkg/logger"
+	"quiztest/pkg/logger"
 
 	"github.com/golang-jwt/jwt"
 
-	"goshop/config"
-	"goshop/pkg/utils"
+	"quiztest/config"
+	"quiztest/pkg/utils"
 )
 
 const (

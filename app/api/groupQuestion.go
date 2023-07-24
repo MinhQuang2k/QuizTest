@@ -1,17 +1,16 @@
 package api
 
 import (
-	"net/http"
-
-	"goshop/pkg/logger"
-	"goshop/pkg/validation"
+	"quiztest/pkg/errors"
+	gohttp "quiztest/pkg/http"
+	"quiztest/pkg/logger"
+	"quiztest/pkg/validation"
 
 	"github.com/gin-gonic/gin"
 
-	"goshop/app/serializers"
-	"goshop/app/services"
-	"goshop/pkg/response"
-	"goshop/pkg/utils"
+	"quiztest/app/serializers"
+	"quiztest/app/services"
+	"quiztest/pkg/utils"
 )
 
 type GroupQuestionAPI struct {
@@ -29,86 +28,139 @@ func NewGroupQuestionAPI(
 	}
 }
 
-func (p *GroupQuestionAPI) CreateGroupQuestion(c *gin.Context) {
+func (p *GroupQuestionAPI) Create(c *gin.Context) gohttp.Response {
 	var req serializers.CreateGroupQuestionReq
 	if err := c.ShouldBindJSON(&req); c.Request.Body == nil || err != nil {
-		logger.Error("Failed to get body", err)
-		response.Error(c, http.StatusBadRequest, err, "Invalid parameters")
-		return
+		return gohttp.Response{
+			Error: errors.InvalidParams.Newm(err.Error()),
+		}
 	}
 
 	req.UserID = c.GetString("userId")
 
 	groupQuestion, err := p.service.Create(c, &req)
 	if err != nil {
-		logger.Error("Failed to create groupQuestion", err.Error())
-		response.Error(c, http.StatusInternalServerError, err, "Something went wrong")
-		return
+		return gohttp.Response{
+			Error: err,
+		}
 	}
 
 	var res serializers.GroupQuestion
 	utils.Copy(&res, &groupQuestion)
-	response.JSON(c, http.StatusOK, res)
+	return gohttp.Response{
+		Error: errors.Success.New(),
+		Data:  res,
+	}
 }
 
-func (p *GroupQuestionAPI) ListGroupQuestions(c *gin.Context) {
-	var req serializers.ListGroupQuestionReq
+func (p *GroupQuestionAPI) GetPaging(c *gin.Context) gohttp.Response {
+	var req serializers.GetPagingGroupQuestionReq
 	if err := c.ShouldBindQuery(&req); err != nil {
-		logger.Error("Failed to parse request query: ", err)
-		response.Error(c, http.StatusBadRequest, err, "Invalid parameters")
-		return
+		return gohttp.Response{
+			Error: errors.InvalidParams.Newm(err.Error()),
+		}
 	}
 
 	req.UserID = c.GetString("userId")
 
-	var res serializers.ListGroupQuestionRes
+	var res serializers.GetPagingGroupQuestionRes
 
-	groupQuestions, pagination, err := p.service.ListGroupQuestions(c, &req)
+	groupQuestions, pagination, err := p.service.GetPaging(c, &req)
 	if err != nil {
-		logger.Error("Failed to get list groupQuestions: ", err)
-		response.Error(c, http.StatusInternalServerError, err, "Something went wrong")
-		return
+		logger.Error(err.Error())
+		return gohttp.Response{
+			Error: err,
+		}
 	}
 
 	utils.Copy(&res.GroupQuestions, &groupQuestions)
 	res.Pagination = pagination
-	response.JSON(c, http.StatusOK, res)
+	return gohttp.Response{
+		Error: errors.Success.New(),
+		Data:  res,
+	}
 }
 
-func (p *GroupQuestionAPI) UpdateGroupQuestion(c *gin.Context) {
+func (p *GroupQuestionAPI) GetAll(c *gin.Context) gohttp.Response {
+	var res []*serializers.GroupQuestion
+	userID := c.GetString("userId")
+	groupQuestions, err := p.service.GetAll(c, userID)
+	if err != nil {
+		logger.Error(err.Error())
+		return gohttp.Response{
+			Error: err,
+		}
+	}
+
+	utils.Copy(&res, &groupQuestions)
+	return gohttp.Response{
+		Error: errors.Success.New(),
+		Data:  res,
+	}
+}
+
+func (p *GroupQuestionAPI) Update(c *gin.Context) gohttp.Response {
 	groupQuestionId := c.Param("id")
 	var req serializers.UpdateGroupQuestionReq
 	if err := c.ShouldBindJSON(&req); c.Request.Body == nil || err != nil {
-		logger.Error("Failed to get body", err)
-		response.Error(c, http.StatusBadRequest, err, "Invalid parameters")
-		return
+		return gohttp.Response{
+			Error: errors.InvalidParams.Newm(err.Error()),
+		}
 	}
 
 	req.UserID = c.GetString("userId")
 
 	groupQuestion, err := p.service.Update(c, groupQuestionId, &req)
 	if err != nil {
-		logger.Error("Failed to update groupQuestion", err.Error())
-		response.Error(c, http.StatusInternalServerError, err, "Something went wrong")
-		return
+		logger.Error(err.Error())
+		return gohttp.Response{
+			Error: err,
+		}
 	}
 
 	var res serializers.GroupQuestion
 	utils.Copy(&res, &groupQuestion)
-	response.JSON(c, http.StatusOK, res)
+	return gohttp.Response{
+		Error: errors.Success.New(),
+		Data:  res,
+	}
 }
 
-func (p *GroupQuestionAPI) GetGroupQuestionByID(c *gin.Context) {
+func (p *GroupQuestionAPI) GetByID(c *gin.Context) gohttp.Response {
 	var res serializers.GroupQuestion
 	userID := c.GetString("userId")
 	groupQuestionId := c.Param("id")
-	groupQuestion, err := p.service.GetGroupQuestionByID(c, groupQuestionId, userID)
+	groupQuestion, err := p.service.GetByID(c, groupQuestionId, userID)
 	if err != nil {
-		logger.Error("Failed to get groupQuestion detail: ", err)
-		response.Error(c, http.StatusNotFound, err, "Not found")
-		return
+		logger.Error(err.Error())
+		return gohttp.Response{
+			Error: err,
+		}
 	}
 
 	utils.Copy(&res, &groupQuestion)
-	response.JSON(c, http.StatusOK, res)
+	return gohttp.Response{
+		Error: errors.Success.New(),
+		Data:  res,
+	}
+}
+
+func (p *GroupQuestionAPI) Delete(c *gin.Context) gohttp.Response {
+	groupQuestionId := c.Param("id")
+	userID := c.GetString("userId")
+
+	groupQuestion, err := p.service.Delete(c, groupQuestionId, userID)
+	if err != nil {
+		logger.Error(err.Error())
+		return gohttp.Response{
+			Error: err,
+		}
+	}
+
+	var res serializers.GroupQuestion
+	utils.Copy(&res, &groupQuestion)
+	return gohttp.Response{
+		Error: errors.Success.New(),
+		Data:  res,
+	}
 }

@@ -12,9 +12,7 @@ type Exam struct {
 	Description     string `json:"description"`
 	ShuffleQuestion string `json:"shuffle_question"`
 	SubjectID       string `json:"subject_id"`
-	Subject         *Subject
 	UserID          string `json:"user_id"`
-	User            *User
 }
 
 func (exam *Exam) BeforeCreate(tx *gorm.DB) error {

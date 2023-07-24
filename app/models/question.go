@@ -18,9 +18,7 @@ type Question struct {
 	MatchingAnswer         string `json:"matching_answer"`
 	FillBlankCorrectAnswer string `json:"fill_blank_correct_answer"`
 	GroupQuestionID        string `json:"group_question_id"`
-	GroupQuestion          *GroupQuestion
 	UserID                 string `json:"user_id"`
-	User                   *User
 }
 
 func (question *Question) BeforeCreate(tx *gorm.DB) error {

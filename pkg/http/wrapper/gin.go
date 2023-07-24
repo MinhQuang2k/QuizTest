@@ -5,8 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"goshop/pkg/errors"
-	gohttp "goshop/pkg/http"
+	"quiztest/pkg/errors"
+	gohttp "quiztest/pkg/http"
 )
 
 // constants wrapper http

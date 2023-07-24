@@ -18,7 +18,7 @@ var MsgMap = map[ErrorType]string{
 	ErrorInvalidOldPass:        "Old password is incorrect",
 	ErrorNotFound:              "Resource does not exist",
 	ErrorPasswordRequired:      "Password is required",
-	ErrorExistName:             "Menu name already exists",
+	ErrorExistName:             "Name already exists",
 	ErrorUserDisabled:          "User is disabled, please contact administrator",
 	ErrorNoPermission:          "No access",
 	ErrorMethodNotAllow:        "Method is not allowed",

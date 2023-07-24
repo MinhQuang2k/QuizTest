@@ -9,15 +9,15 @@ import (
 	"syscall"
 	"time"
 
-	"goshop/pkg/logger"
-	"goshop/pkg/validation"
+	"quiztest/pkg/logger"
+	"quiztest/pkg/validation"
 
-	"goshop/app"
-	"goshop/app/api"
-	"goshop/app/dbs"
-	"goshop/app/repositories"
-	"goshop/app/services"
-	"goshop/config"
+	"quiztest/app"
+	"quiztest/app/api"
+	"quiztest/app/dbs"
+	"quiztest/app/repositories"
+	"quiztest/app/services"
+	"quiztest/config"
 )
 
 func main() {
@@ -30,14 +30,20 @@ func main() {
 
 	userRepo := repositories.NewUserRepository()
 	groupQuestionRepo := repositories.NewGroupQuestionRepository()
+	subjectRepo := repositories.NewSubjectRepository()
+	categoryRepo := repositories.NewCategoryRepository()
 
 	userSvc := services.NewUserService(userRepo)
 	groupQuestionSvc := services.NewGroupQuestionService(groupQuestionRepo)
+	subjectSvc := services.NewSubjectService(subjectRepo)
+	categorySvc := services.NewCategoryService(categoryRepo, subjectRepo)
 
 	userAPI := api.NewUserAPI(validator, userSvc)
 	groupQuestionAPI := api.NewGroupQuestionAPI(validator, groupQuestionSvc)
+	subjectAPI := api.NewSubjectAPI(validator, subjectSvc)
+	categoryAPI := api.NewCategoryAPI(validator, categorySvc)
 
-	engine := app.InitGinEngine(userAPI, groupQuestionAPI)
+	engine := app.InitGinEngine(userAPI, groupQuestionAPI, categoryAPI, subjectAPI)
 
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%d", cfg.Port),

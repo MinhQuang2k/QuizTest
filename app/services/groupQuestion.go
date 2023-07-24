@@ -3,20 +3,22 @@ package services
 import (
 	"context"
 
-	"goshop/pkg/logger"
+	"quiztest/pkg/logger"
 
-	"goshop/app/models"
-	"goshop/app/repositories"
-	"goshop/app/serializers"
-	"goshop/pkg/paging"
-	"goshop/pkg/utils"
+	"quiztest/app/models"
+	"quiztest/app/repositories"
+	"quiztest/app/serializers"
+	"quiztest/pkg/paging"
+	"quiztest/pkg/utils"
 )
 
 type IGroupQuestionService interface {
-	ListGroupQuestions(c context.Context, req *serializers.ListGroupQuestionReq) ([]*models.GroupQuestion, *paging.Pagination, error)
-	GetGroupQuestionByID(ctx context.Context, id string, userID string) (*models.GroupQuestion, error)
+	GetPaging(c context.Context, req *serializers.GetPagingGroupQuestionReq) ([]*models.GroupQuestion, *paging.Pagination, error)
+	GetAll(c context.Context, userID string) ([]*models.GroupQuestion, error)
+	GetByID(ctx context.Context, id string, userID string) (*models.GroupQuestion, error)
 	Create(ctx context.Context, req *serializers.CreateGroupQuestionReq) (*models.GroupQuestion, error)
 	Update(ctx context.Context, id string, req *serializers.UpdateGroupQuestionReq) (*models.GroupQuestion, error)
+	Delete(ctx context.Context, id string, userID string) (*models.GroupQuestion, error)
 }
 
 type GroupQuestionService struct {
@@ -27,8 +29,8 @@ func NewGroupQuestionService(repo repositories.IGroupQuestionRepository) *GroupQ
 	return &GroupQuestionService{repo: repo}
 }
 
-func (p *GroupQuestionService) GetGroupQuestionByID(ctx context.Context, id string, userID string) (*models.GroupQuestion, error) {
-	groupQuestion, err := p.repo.GetGroupQuestionByID(ctx, id, userID)
+func (p *GroupQuestionService) GetByID(ctx context.Context, id string, userID string) (*models.GroupQuestion, error) {
+	groupQuestion, err := p.repo.GetByID(ctx, id, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -36,26 +38,28 @@ func (p *GroupQuestionService) GetGroupQuestionByID(ctx context.Context, id stri
 	return groupQuestion, nil
 }
 
-func (p *GroupQuestionService) ListGroupQuestions(ctx context.Context, req *serializers.ListGroupQuestionReq) ([]*models.GroupQuestion, *paging.Pagination, error) {
-	groupQuestions, pagination, err := p.repo.ListGroupQuestions(ctx, req)
+func (p *GroupQuestionService) GetPaging(ctx context.Context, req *serializers.GetPagingGroupQuestionReq) ([]*models.GroupQuestion, *paging.Pagination, error) {
+	groupQuestions, pagination, err := p.repo.GetPaging(ctx, req)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	return groupQuestions, pagination, nil
 }
-
-func (p *GroupQuestionService) Create(ctx context.Context, req *serializers.CreateGroupQuestionReq) (*models.GroupQuestion, error) {
-	_, err := p.repo.ExitName(ctx, req.Name, req.UserID)
+func (p *GroupQuestionService) GetAll(ctx context.Context, userID string) ([]*models.GroupQuestion, error) {
+	groupQuestions, err := p.repo.GetAll(ctx, userID)
 	if err != nil {
-		logger.Errorf("Create exits name, name: %s, error: %s", req.Name, err)
 		return nil, err
 	}
 
+	return groupQuestions, nil
+}
+
+func (p *GroupQuestionService) Create(ctx context.Context, req *serializers.CreateGroupQuestionReq) (*models.GroupQuestion, error) {
 	var groupQuestion models.GroupQuestion
 	utils.Copy(&groupQuestion, req)
 
-	err = p.repo.Create(ctx, &groupQuestion)
+	err := p.repo.Create(ctx, &groupQuestion)
 	if err != nil {
 		logger.Errorf("Create fail, error: %s", err)
 		return nil, err
@@ -65,7 +69,7 @@ func (p *GroupQuestionService) Create(ctx context.Context, req *serializers.Crea
 }
 
 func (p *GroupQuestionService) Update(ctx context.Context, id string, req *serializers.UpdateGroupQuestionReq) (*models.GroupQuestion, error) {
-	groupQuestion, err := p.repo.GetGroupQuestionByID(ctx, id, req.UserID)
+	groupQuestion, err := p.repo.GetByID(ctx, id, req.UserID)
 	if err != nil {
 		logger.Errorf("Update.GetUserByID fail, id: %s, error: %s", id, err)
 		return nil, err
@@ -75,6 +79,22 @@ func (p *GroupQuestionService) Update(ctx context.Context, id string, req *seria
 	err = p.repo.Update(ctx, groupQuestion)
 	if err != nil {
 		logger.Errorf("Update fail, id: %s, error: %s", id, err)
+		return nil, err
+	}
+
+	return groupQuestion, nil
+}
+
+func (p *GroupQuestionService) Delete(ctx context.Context, id string, userID string) (*models.GroupQuestion, error) {
+	groupQuestion, err := p.repo.GetByID(ctx, id, userID)
+	if err != nil {
+		logger.Errorf("Delete.GetUserByID fail, id: %s, error: %s", id, err)
+		return nil, err
+	}
+
+	err = p.repo.Delete(ctx, groupQuestion)
+	if err != nil {
+		logger.Errorf("Delete fail, id: %s, error: %s", id, err)
 		return nil, err
 	}
 
