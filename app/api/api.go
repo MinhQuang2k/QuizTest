@@ -48,7 +48,6 @@ func RegisterAPI(r *gin.Engine, userAPI *UserAPI, groupQuestionAPI *GroupQuestio
 	// Subject
 	subjectRoute := api1.Group("/subjects")
 	{
-		subjectRoute.GET("/all", authMiddleware, wrapper.Wrap(subjectAPI.GetAll))
 		subjectRoute.POST("", authMiddleware, wrapper.Wrap(subjectAPI.Create))
 		subjectRoute.PUT("/:id", authMiddleware, wrapper.Wrap(subjectAPI.Update))
 		subjectRoute.DELETE("/:id", authMiddleware, wrapper.Wrap(subjectAPI.Delete))

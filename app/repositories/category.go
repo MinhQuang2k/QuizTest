@@ -34,7 +34,10 @@ func (r *CategoryRepo) Create(ctx context.Context, category *models.Category) er
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 
-	if err := r.db.Where("name = ?", category.Name).Where("user_id = ?", category.UserID).First(&category).Error; err == nil {
+	if err := r.db.
+		Where("name = ?", category.Name).
+		Where("user_id = ?", category.UserID).
+		First(&category).Error; err == nil {
 		return errors.ErrorExistName.New()
 	}
 

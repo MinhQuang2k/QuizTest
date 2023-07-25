@@ -23,12 +23,12 @@ func Init() {
 	}
 
 	// Set up connection pool
-	// sqlDB, err := database.DB()
+	sqlDB, err := database.DB()
 	if err != nil {
 		logger.Fatal("Cannot connect to database", err)
 	}
-	// sqlDB.SetMaxIdleConns(20)
-	// sqlDB.SetMaxOpenConns(200)
+	sqlDB.SetMaxIdleConns(20)
+	sqlDB.SetMaxOpenConns(200)
 	Database = database
 
 	Migrate()
@@ -37,9 +37,9 @@ func Init() {
 func Migrate() {
 	User := models.User{}
 	Category := models.Category{}
-	// Exam := models.Exam{}
+	Exam := models.Exam{}
 	GroupQuestion := models.GroupQuestion{}
-	// Question := models.Question{}
+	Question := models.Question{}
 	Subject := models.Subject{}
-	Database.AutoMigrate(&User, &GroupQuestion, &Category, &Subject)
+	Database.AutoMigrate(&User, &GroupQuestion, &Category, &Subject, &Exam, &Question)
 }

@@ -79,7 +79,7 @@ func (u *UserAPI) Register(c *gin.Context) gohttp.Response {
 }
 
 func (u *UserAPI) GetMe(c *gin.Context) gohttp.Response {
-	userID := utils.StringToUint(c.GetString("userId"))
+	userID := c.MustGet("userId").(uint)
 	user, err := u.service.GetUserByID(c, userID)
 	if err != nil {
 		logger.Error(err.Error())
@@ -97,7 +97,7 @@ func (u *UserAPI) GetMe(c *gin.Context) gohttp.Response {
 }
 
 func (u *UserAPI) RefreshToken(c *gin.Context) gohttp.Response {
-	userID := utils.StringToUint(c.GetString("userId"))
+	userID := c.MustGet("userId").(uint)
 	accessToken, err := u.service.RefreshToken(c, userID)
 	if err != nil {
 		logger.Error(err.Error())
@@ -124,7 +124,7 @@ func (u *UserAPI) ChangePassword(c *gin.Context) gohttp.Response {
 		}
 	}
 
-	userID := utils.StringToUint(c.GetString("userId"))
+	userID := c.MustGet("userId").(uint)
 	err := u.service.ChangePassword(c, userID, &req)
 	if err != nil {
 		return gohttp.Response{

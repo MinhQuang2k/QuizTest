@@ -36,7 +36,7 @@ func (p *GroupQuestionAPI) Create(c *gin.Context) gohttp.Response {
 		}
 	}
 
-	req.UserID = utils.StringToUint(c.GetString("userId"))
+	req.UserID = c.MustGet("userId").(uint)
 
 	groupQuestion, err := p.service.Create(c, &req)
 	if err != nil {
@@ -61,7 +61,7 @@ func (p *GroupQuestionAPI) GetPaging(c *gin.Context) gohttp.Response {
 		}
 	}
 
-	req.UserID = utils.StringToUint(c.GetString("userId"))
+	req.UserID = c.MustGet("userId").(uint)
 
 	var res serializers.GetPagingGroupQuestionRes
 
@@ -83,7 +83,7 @@ func (p *GroupQuestionAPI) GetPaging(c *gin.Context) gohttp.Response {
 
 func (p *GroupQuestionAPI) GetAll(c *gin.Context) gohttp.Response {
 	var res []*serializers.GroupQuestion
-	userID := utils.StringToUint(c.GetString("userId"))
+	userID := c.MustGet("userId").(uint)
 	groupQuestions, err := p.service.GetAll(c, userID)
 	if err != nil {
 		logger.Error(err.Error())
@@ -108,7 +108,7 @@ func (p *GroupQuestionAPI) Update(c *gin.Context) gohttp.Response {
 		}
 	}
 
-	req.UserID = utils.StringToUint(c.GetString("userId"))
+	req.UserID = c.MustGet("userId").(uint)
 
 	groupQuestion, err := p.service.Update(c, groupQuestionId, &req)
 	if err != nil {
@@ -128,7 +128,7 @@ func (p *GroupQuestionAPI) Update(c *gin.Context) gohttp.Response {
 
 func (p *GroupQuestionAPI) GetByID(c *gin.Context) gohttp.Response {
 	var res serializers.GroupQuestion
-	userID := utils.StringToUint(c.GetString("userId"))
+	userID := c.MustGet("userId").(uint)
 	groupQuestionId := utils.StringToUint(c.Param("id"))
 	groupQuestion, err := p.service.GetByID(c, groupQuestionId, userID)
 	if err != nil {
@@ -147,7 +147,7 @@ func (p *GroupQuestionAPI) GetByID(c *gin.Context) gohttp.Response {
 
 func (p *GroupQuestionAPI) Delete(c *gin.Context) gohttp.Response {
 	groupQuestionId := utils.StringToUint(c.Param("id"))
-	userID := utils.StringToUint(c.GetString("userId"))
+	userID := c.MustGet("userId").(uint)
 
 	groupQuestion, err := p.service.Delete(c, groupQuestionId, userID)
 	if err != nil {

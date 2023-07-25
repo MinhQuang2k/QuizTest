@@ -16,7 +16,7 @@ type ICategoryService interface {
 	GetPaging(c context.Context, req *serializers.GetPagingCategoryReq) ([]*models.Category, *paging.Pagination, error)
 	GetAll(c context.Context, userID uint) ([]*models.Category, error)
 	GetByID(ctx context.Context, id uint, userID uint) (*models.Category, error)
-	Create(ctx context.Context, req *serializers.CreateCategoryReq) (*models.Category, []*models.Subject, error)
+	Create(ctx context.Context, req *serializers.CreateCategoryReq) (*models.Category, error)
 	Update(ctx context.Context, id uint, req *serializers.UpdateCategoryReq) (*models.Category, error)
 	Delete(ctx context.Context, id uint, userID uint) (*models.Category, error)
 }
@@ -30,7 +30,7 @@ func NewCategoryService(repo repositories.ICategoryRepository, repoSub repositor
 	return &CategoryService{repo: repo, repoSub: repoSub}
 }
 
-func (p *CategoryService) Create(ctx context.Context, req *serializers.CreateCategoryReq) (*models.Category, []*models.Subject, error) {
+func (p *CategoryService) Create(ctx context.Context, req *serializers.CreateCategoryReq) (*models.Category, error) {
 	var category models.Category
 	utils.Copy(&category, req)
 	var subjects []*models.Subject
@@ -38,15 +38,10 @@ func (p *CategoryService) Create(ctx context.Context, req *serializers.CreateCat
 
 	if err := p.repo.Create(ctx, &category); err != nil {
 		logger.Errorf("Create fail, error: %s", err)
-		return nil, nil, err
+		return nil, err
 	}
 
-	if err := p.repoSub.CreateMany(ctx, subjects, &category); err != nil {
-		logger.Errorf("Create fail, error: %s", err)
-		return nil, nil, err
-	}
-
-	return &category, subjects, nil
+	return &category, nil
 }
 
 func (p *CategoryService) GetByID(ctx context.Context, id uint, userID uint) (*models.Category, error) {

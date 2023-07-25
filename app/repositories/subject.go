@@ -13,12 +13,9 @@ import (
 
 type ISubjectRepository interface {
 	Create(ctx context.Context, subject *models.Subject) error
-	CreateMany(ctx context.Context, subjects []*models.Subject, category *models.Category) error
 	Update(ctx context.Context, subject *models.Subject) error
 	Delete(ctx context.Context, subject *models.Subject) error
-	GetByCategoryID(ctx context.Context, categoryID uint) (*models.Subject, error)
 	GetByID(ctx context.Context, id uint) (*models.Subject, error)
-	GetAll(ctx context.Context, categoryID uint) ([]*models.Subject, error)
 }
 
 type SubjectRepo struct {
@@ -38,21 +35,6 @@ func (r *SubjectRepo) Create(ctx context.Context, subject *models.Subject) error
 	}
 
 	if err := r.db.Create(&subject).Error; err != nil {
-		return errors.ErrorDatabaseCreate.Newm(err.Error())
-	}
-
-	return nil
-}
-
-func (r *SubjectRepo) CreateMany(ctx context.Context, subjects []*models.Subject, category *models.Category) error {
-	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
-	defer cancel()
-
-	for _, subject := range subjects {
-		subject.CategoryID = category.ID
-	}
-
-	if err := r.db.Create(&subjects).Error; err != nil {
 		return errors.ErrorDatabaseCreate.Newm(err.Error())
 	}
 
@@ -96,18 +78,6 @@ func (r *SubjectRepo) GetAll(ctx context.Context, categoryID uint) ([]*models.Su
 	}
 
 	return subjects, nil
-}
-
-func (r *SubjectRepo) GetByCategoryID(ctx context.Context, categoryID uint) (*models.Subject, error) {
-	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
-	defer cancel()
-
-	var subject models.Subject
-	if err := r.db.Where("category_id = ?", categoryID).First(&subject).Error; err != nil {
-		return nil, errors.ErrorDatabaseGet.Newm(err.Error())
-	}
-
-	return &subject, nil
 }
 
 func (r *SubjectRepo) GetByID(ctx context.Context, id uint) (*models.Subject, error) {

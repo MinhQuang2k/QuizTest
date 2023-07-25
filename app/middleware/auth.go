@@ -31,7 +31,7 @@ func JWT(tokenType string) gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		c.Set("userId", payload["id"])
+		c.Set("userId", uint(payload["id"].(float64)))
 		c.Set("role", payload["role"])
 		c.Next()
 	}

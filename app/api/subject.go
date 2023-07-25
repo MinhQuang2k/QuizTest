@@ -51,24 +51,6 @@ func (p *SubjectAPI) Create(c *gin.Context) gohttp.Response {
 	}
 }
 
-func (p *SubjectAPI) GetAll(c *gin.Context) gohttp.Response {
-	var res []*serializers.Subject
-	userID := utils.StringToUint(c.GetString("userId"))
-	subjects, err := p.service.GetAll(c, userID)
-	if err != nil {
-		logger.Error(err.Error())
-		return gohttp.Response{
-			Error: err,
-		}
-	}
-
-	utils.Copy(&res, &subjects)
-	return gohttp.Response{
-		Error: errors.Success.New(),
-		Data:  res,
-	}
-}
-
 func (p *SubjectAPI) Update(c *gin.Context) gohttp.Response {
 	subjectId := utils.StringToUint(c.Param("id"))
 	var req serializers.UpdateSubjectReq
@@ -96,7 +78,7 @@ func (p *SubjectAPI) Update(c *gin.Context) gohttp.Response {
 
 func (p *SubjectAPI) Delete(c *gin.Context) gohttp.Response {
 	subjectId := utils.StringToUint(c.Param("id"))
-	userID := utils.StringToUint(c.GetString("userId"))
+	userID := c.MustGet("userId").(uint)
 
 	subject, err := p.service.Delete(c, subjectId, userID)
 	if err != nil {

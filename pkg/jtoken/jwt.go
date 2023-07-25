@@ -1,7 +1,6 @@
 package jtoken
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
@@ -54,7 +53,7 @@ func GenerateRefreshToken(payload map[string]interface{}) string {
 	return token
 }
 
-func ValidateToken(jwtToken string) (map[string]string, error) {
+func ValidateToken(jwtToken string) (map[string]interface{}, error) {
 	cfg := config.GetConfig()
 	cleanJWT := strings.Replace(jwtToken, "Bearer ", "", -1)
 	tokenData := jwt.MapClaims{}
@@ -73,14 +72,5 @@ func ValidateToken(jwtToken string) (map[string]string, error) {
 	var data map[string]interface{}
 	utils.Copy(&data, tokenData["payload"])
 
-	dataString := map[string]string{}
-	for key, value := range data {
-		if valueString, ok := value.(string); ok {
-			dataString[key] = valueString
-		} else {
-			dataString[key] = fmt.Sprintf("%v", value)
-		}
-	}
-
-	return dataString, nil
+	return data, nil
 }
