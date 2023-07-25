@@ -14,11 +14,11 @@ import (
 
 type IGroupQuestionService interface {
 	GetPaging(c context.Context, req *serializers.GetPagingGroupQuestionReq) ([]*models.GroupQuestion, *paging.Pagination, error)
-	GetAll(c context.Context, userID string) ([]*models.GroupQuestion, error)
-	GetByID(ctx context.Context, id string, userID string) (*models.GroupQuestion, error)
+	GetAll(c context.Context, userID uint) ([]*models.GroupQuestion, error)
+	GetByID(ctx context.Context, id uint, userID uint) (*models.GroupQuestion, error)
 	Create(ctx context.Context, req *serializers.CreateGroupQuestionReq) (*models.GroupQuestion, error)
-	Update(ctx context.Context, id string, req *serializers.UpdateGroupQuestionReq) (*models.GroupQuestion, error)
-	Delete(ctx context.Context, id string, userID string) (*models.GroupQuestion, error)
+	Update(ctx context.Context, id uint, req *serializers.UpdateGroupQuestionReq) (*models.GroupQuestion, error)
+	Delete(ctx context.Context, id uint, userID uint) (*models.GroupQuestion, error)
 }
 
 type GroupQuestionService struct {
@@ -29,7 +29,7 @@ func NewGroupQuestionService(repo repositories.IGroupQuestionRepository) *GroupQ
 	return &GroupQuestionService{repo: repo}
 }
 
-func (p *GroupQuestionService) GetByID(ctx context.Context, id string, userID string) (*models.GroupQuestion, error) {
+func (p *GroupQuestionService) GetByID(ctx context.Context, id uint, userID uint) (*models.GroupQuestion, error) {
 	groupQuestion, err := p.repo.GetByID(ctx, id, userID)
 	if err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func (p *GroupQuestionService) GetPaging(ctx context.Context, req *serializers.G
 
 	return groupQuestions, pagination, nil
 }
-func (p *GroupQuestionService) GetAll(ctx context.Context, userID string) ([]*models.GroupQuestion, error) {
+func (p *GroupQuestionService) GetAll(ctx context.Context, userID uint) ([]*models.GroupQuestion, error) {
 	groupQuestions, err := p.repo.GetAll(ctx, userID)
 	if err != nil {
 		return nil, err
@@ -68,7 +68,7 @@ func (p *GroupQuestionService) Create(ctx context.Context, req *serializers.Crea
 	return &groupQuestion, nil
 }
 
-func (p *GroupQuestionService) Update(ctx context.Context, id string, req *serializers.UpdateGroupQuestionReq) (*models.GroupQuestion, error) {
+func (p *GroupQuestionService) Update(ctx context.Context, id uint, req *serializers.UpdateGroupQuestionReq) (*models.GroupQuestion, error) {
 	groupQuestion, err := p.repo.GetByID(ctx, id, req.UserID)
 	if err != nil {
 		logger.Errorf("Update.GetUserByID fail, id: %s, error: %s", id, err)
@@ -85,7 +85,7 @@ func (p *GroupQuestionService) Update(ctx context.Context, id string, req *seria
 	return groupQuestion, nil
 }
 
-func (p *GroupQuestionService) Delete(ctx context.Context, id string, userID string) (*models.GroupQuestion, error) {
+func (p *GroupQuestionService) Delete(ctx context.Context, id uint, userID uint) (*models.GroupQuestion, error) {
 	groupQuestion, err := p.repo.GetByID(ctx, id, userID)
 	if err != nil {
 		logger.Errorf("Delete.GetUserByID fail, id: %s, error: %s", id, err)

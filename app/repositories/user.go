@@ -14,7 +14,7 @@ import (
 type IUserRepository interface {
 	Create(ctx context.Context, user *models.User) error
 	Update(ctx context.Context, user *models.User) error
-	GetUserByID(ctx context.Context, id string) (*models.User, error)
+	GetUserByID(ctx context.Context, id uint) (*models.User, error)
 	GetUserByEmail(ctx context.Context, email string) (*models.User, error)
 }
 
@@ -48,7 +48,7 @@ func (u *UserRepo) Update(ctx context.Context, user *models.User) error {
 	return nil
 }
 
-func (u *UserRepo) GetUserByID(ctx context.Context, id string) (*models.User, error) {
+func (u *UserRepo) GetUserByID(ctx context.Context, id uint) (*models.User, error) {
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 

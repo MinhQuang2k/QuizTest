@@ -36,7 +36,7 @@ func (p *GroupQuestionAPI) Create(c *gin.Context) gohttp.Response {
 		}
 	}
 
-	req.UserID = c.GetString("userId")
+	req.UserID = utils.StringToUint(c.GetString("userId"))
 
 	groupQuestion, err := p.service.Create(c, &req)
 	if err != nil {
@@ -61,7 +61,7 @@ func (p *GroupQuestionAPI) GetPaging(c *gin.Context) gohttp.Response {
 		}
 	}
 
-	req.UserID = c.GetString("userId")
+	req.UserID = utils.StringToUint(c.GetString("userId"))
 
 	var res serializers.GetPagingGroupQuestionRes
 
@@ -83,7 +83,7 @@ func (p *GroupQuestionAPI) GetPaging(c *gin.Context) gohttp.Response {
 
 func (p *GroupQuestionAPI) GetAll(c *gin.Context) gohttp.Response {
 	var res []*serializers.GroupQuestion
-	userID := c.GetString("userId")
+	userID := utils.StringToUint(c.GetString("userId"))
 	groupQuestions, err := p.service.GetAll(c, userID)
 	if err != nil {
 		logger.Error(err.Error())
@@ -100,7 +100,7 @@ func (p *GroupQuestionAPI) GetAll(c *gin.Context) gohttp.Response {
 }
 
 func (p *GroupQuestionAPI) Update(c *gin.Context) gohttp.Response {
-	groupQuestionId := c.Param("id")
+	groupQuestionId := utils.StringToUint(c.Param("id"))
 	var req serializers.UpdateGroupQuestionReq
 	if err := c.ShouldBindJSON(&req); c.Request.Body == nil || err != nil {
 		return gohttp.Response{
@@ -108,7 +108,7 @@ func (p *GroupQuestionAPI) Update(c *gin.Context) gohttp.Response {
 		}
 	}
 
-	req.UserID = c.GetString("userId")
+	req.UserID = utils.StringToUint(c.GetString("userId"))
 
 	groupQuestion, err := p.service.Update(c, groupQuestionId, &req)
 	if err != nil {
@@ -128,8 +128,8 @@ func (p *GroupQuestionAPI) Update(c *gin.Context) gohttp.Response {
 
 func (p *GroupQuestionAPI) GetByID(c *gin.Context) gohttp.Response {
 	var res serializers.GroupQuestion
-	userID := c.GetString("userId")
-	groupQuestionId := c.Param("id")
+	userID := utils.StringToUint(c.GetString("userId"))
+	groupQuestionId := utils.StringToUint(c.Param("id"))
 	groupQuestion, err := p.service.GetByID(c, groupQuestionId, userID)
 	if err != nil {
 		logger.Error(err.Error())
@@ -146,8 +146,8 @@ func (p *GroupQuestionAPI) GetByID(c *gin.Context) gohttp.Response {
 }
 
 func (p *GroupQuestionAPI) Delete(c *gin.Context) gohttp.Response {
-	groupQuestionId := c.Param("id")
-	userID := c.GetString("userId")
+	groupQuestionId := utils.StringToUint(c.Param("id"))
+	userID := utils.StringToUint(c.GetString("userId"))
 
 	groupQuestion, err := p.service.Delete(c, groupQuestionId, userID)
 	if err != nil {

@@ -1,17 +1,11 @@
 package models
 
 import (
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type Subject struct {
-	Base
+	gorm.Model
 	Name       string `json:"name"`
-	CategoryID string `json:"category_id"`
-}
-
-func (subject *Subject) BeforeCreate(tx *gorm.DB) error {
-	subject.ID = uuid.New().String()
-	return nil
+	CategoryID uint   `json:"category_id"`
 }

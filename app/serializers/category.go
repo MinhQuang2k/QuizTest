@@ -6,7 +6,7 @@ import (
 )
 
 type Category struct {
-	ID        string     `json:"id"`
+	ID        uint       `json:"id"`
 	Name      string     `json:"name"`
 	Subjects  []*Subject `json:"subjects"`
 	CreatedAt time.Time  `json:"created_at"`
@@ -14,7 +14,7 @@ type Category struct {
 }
 
 type GetPagingCategoryReq struct {
-	UserID    string `json:"user_id" validate:"required"`
+	UserID    uint   `json:"user_id" validate:"required"`
 	Name      string `json:"name,omitempty" form:"name"`
 	Page      int64  `json:"-" form:"page"`
 	Limit     int64  `json:"-" form:"limit"`
@@ -28,7 +28,7 @@ type GetPagingCategoryRes struct {
 }
 
 type CreateCategoryReq struct {
-	UserID   string     `json:"user_id" validate:"required"`
+	UserID   uint       `json:"user_id" validate:"required"`
 	Name     string     `json:"name" validate:"required"`
 	Subjects []*Subject `json:"subjects"`
 }
@@ -38,6 +38,6 @@ type CreateCategoryRes struct {
 }
 
 type UpdateCategoryReq struct {
-	UserID string `json:"user_id" validate:"required"`
+	UserID uint   `json:"user_id" validate:"required"`
 	Name   string `json:"name,omitempty"`
 }

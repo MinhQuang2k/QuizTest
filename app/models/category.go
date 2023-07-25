@@ -1,17 +1,13 @@
 package models
 
 import (
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type Category struct {
-	Base
-	Name   string `json:"name"`
-	UserID string `json:"user_id"`
-}
-
-func (category *Category) BeforeCreate(tx *gorm.DB) error {
-	category.ID = uuid.New().String()
-	return nil
+	gorm.Model
+	Name     string `json:"name"`
+	UserID   uint   `json:"user_id"`
+	User     *User
+	Subjects []*Subject `json: "subjects"`
 }

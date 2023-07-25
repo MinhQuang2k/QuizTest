@@ -14,11 +14,11 @@ import (
 
 type ICategoryService interface {
 	GetPaging(c context.Context, req *serializers.GetPagingCategoryReq) ([]*models.Category, *paging.Pagination, error)
-	GetAll(c context.Context, userID string) ([]*models.Category, error)
-	GetByID(ctx context.Context, id string, userID string) (*models.Category, error)
+	GetAll(c context.Context, userID uint) ([]*models.Category, error)
+	GetByID(ctx context.Context, id uint, userID uint) (*models.Category, error)
 	Create(ctx context.Context, req *serializers.CreateCategoryReq) (*models.Category, []*models.Subject, error)
-	Update(ctx context.Context, id string, req *serializers.UpdateCategoryReq) (*models.Category, error)
-	Delete(ctx context.Context, id string, userID string) (*models.Category, error)
+	Update(ctx context.Context, id uint, req *serializers.UpdateCategoryReq) (*models.Category, error)
+	Delete(ctx context.Context, id uint, userID uint) (*models.Category, error)
 }
 
 type CategoryService struct {
@@ -49,7 +49,7 @@ func (p *CategoryService) Create(ctx context.Context, req *serializers.CreateCat
 	return &category, subjects, nil
 }
 
-func (p *CategoryService) GetByID(ctx context.Context, id string, userID string) (*models.Category, error) {
+func (p *CategoryService) GetByID(ctx context.Context, id uint, userID uint) (*models.Category, error) {
 	category, err := p.repo.GetByID(ctx, id, userID)
 	if err != nil {
 		return nil, err
@@ -67,7 +67,7 @@ func (p *CategoryService) GetPaging(ctx context.Context, req *serializers.GetPag
 	return categories, pagination, nil
 }
 
-func (p *CategoryService) GetAll(ctx context.Context, userID string) ([]*models.Category, error) {
+func (p *CategoryService) GetAll(ctx context.Context, userID uint) ([]*models.Category, error) {
 	categories, err := p.repo.GetAll(ctx, userID)
 	if err != nil {
 		return nil, err
@@ -76,7 +76,7 @@ func (p *CategoryService) GetAll(ctx context.Context, userID string) ([]*models.
 	return categories, nil
 }
 
-func (p *CategoryService) Update(ctx context.Context, id string, req *serializers.UpdateCategoryReq) (*models.Category, error) {
+func (p *CategoryService) Update(ctx context.Context, id uint, req *serializers.UpdateCategoryReq) (*models.Category, error) {
 	category, err := p.repo.GetByID(ctx, id, req.UserID)
 	if err != nil {
 		logger.Errorf("Update.GetUserByID fail, id: %s, error: %s", id, err)
@@ -93,7 +93,7 @@ func (p *CategoryService) Update(ctx context.Context, id string, req *serializer
 	return category, nil
 }
 
-func (p *CategoryService) Delete(ctx context.Context, id string, userID string) (*models.Category, error) {
+func (p *CategoryService) Delete(ctx context.Context, id uint, userID uint) (*models.Category, error) {
 	category, err := p.repo.GetByID(ctx, id, userID)
 	if err != nil {
 		logger.Errorf("Delete.GetUserByID fail, id: %s, error: %s", id, err)

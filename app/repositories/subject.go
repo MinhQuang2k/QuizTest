@@ -16,9 +16,9 @@ type ISubjectRepository interface {
 	CreateMany(ctx context.Context, subjects []*models.Subject, category *models.Category) error
 	Update(ctx context.Context, subject *models.Subject) error
 	Delete(ctx context.Context, subject *models.Subject) error
-	GetByCategoryID(ctx context.Context, categoryID string) (*models.Subject, error)
-	GetByID(ctx context.Context, id string) (*models.Subject, error)
-	GetAll(ctx context.Context, categoryID string) ([]*models.Subject, error)
+	GetByCategoryID(ctx context.Context, categoryID uint) (*models.Subject, error)
+	GetByID(ctx context.Context, id uint) (*models.Subject, error)
+	GetAll(ctx context.Context, categoryID uint) ([]*models.Subject, error)
 }
 
 type SubjectRepo struct {
@@ -86,7 +86,7 @@ func (r *SubjectRepo) Delete(ctx context.Context, subject *models.Subject) error
 	return nil
 }
 
-func (r *SubjectRepo) GetAll(ctx context.Context, categoryID string) ([]*models.Subject, error) {
+func (r *SubjectRepo) GetAll(ctx context.Context, categoryID uint) ([]*models.Subject, error) {
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 
@@ -98,7 +98,7 @@ func (r *SubjectRepo) GetAll(ctx context.Context, categoryID string) ([]*models.
 	return subjects, nil
 }
 
-func (r *SubjectRepo) GetByCategoryID(ctx context.Context, categoryID string) (*models.Subject, error) {
+func (r *SubjectRepo) GetByCategoryID(ctx context.Context, categoryID uint) (*models.Subject, error) {
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 
@@ -110,7 +110,7 @@ func (r *SubjectRepo) GetByCategoryID(ctx context.Context, categoryID string) (*
 	return &subject, nil
 }
 
-func (r *SubjectRepo) GetByID(ctx context.Context, id string) (*models.Subject, error) {
+func (r *SubjectRepo) GetByID(ctx context.Context, id uint) (*models.Subject, error) {
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 

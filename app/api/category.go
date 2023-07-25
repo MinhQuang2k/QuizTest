@@ -47,7 +47,7 @@ func (p *CategoryAPI) Create(c *gin.Context) gohttp.Response {
 		}
 	}
 
-	req.UserID = c.GetString("userId")
+	req.UserID = utils.StringToUint(c.GetString("userId"))
 
 	category, subjects, err := p.service.Create(c, &req)
 	if err != nil {
@@ -78,7 +78,7 @@ func (p *CategoryAPI) GetPaging(c *gin.Context) gohttp.Response {
 		}
 	}
 
-	req.UserID = c.GetString("userId")
+	req.UserID = utils.StringToUint(c.GetString("userId"))
 
 	var res serializers.GetPagingCategoryRes
 
@@ -100,7 +100,7 @@ func (p *CategoryAPI) GetPaging(c *gin.Context) gohttp.Response {
 
 func (p *CategoryAPI) GetAll(c *gin.Context) gohttp.Response {
 	var res []*serializers.Category
-	userID := c.GetString("userId")
+	userID := utils.StringToUint(c.GetString("userId"))
 	categories, err := p.service.GetAll(c, userID)
 	if err != nil {
 		logger.Error(err.Error())
@@ -117,7 +117,7 @@ func (p *CategoryAPI) GetAll(c *gin.Context) gohttp.Response {
 }
 
 func (p *CategoryAPI) Update(c *gin.Context) gohttp.Response {
-	categoryId := c.Param("id")
+	categoryId := utils.StringToUint(c.Param("id"))
 	var req serializers.UpdateCategoryReq
 	if err := c.ShouldBindJSON(&req); c.Request.Body == nil || err != nil {
 		return gohttp.Response{
@@ -125,7 +125,7 @@ func (p *CategoryAPI) Update(c *gin.Context) gohttp.Response {
 		}
 	}
 
-	req.UserID = c.GetString("userId")
+	req.UserID = utils.StringToUint(c.GetString("userId"))
 
 	category, err := p.service.Update(c, categoryId, &req)
 	if err != nil {
@@ -145,8 +145,8 @@ func (p *CategoryAPI) Update(c *gin.Context) gohttp.Response {
 
 func (p *CategoryAPI) GetByID(c *gin.Context) gohttp.Response {
 	var res serializers.Category
-	userID := c.GetString("userId")
-	categoryId := c.Param("id")
+	userID := utils.StringToUint(c.GetString("userId"))
+	categoryId := utils.StringToUint(c.Param("id"))
 	category, err := p.service.GetByID(c, categoryId, userID)
 	if err != nil {
 		logger.Error(err.Error())
@@ -163,8 +163,8 @@ func (p *CategoryAPI) GetByID(c *gin.Context) gohttp.Response {
 }
 
 func (p *CategoryAPI) Delete(c *gin.Context) gohttp.Response {
-	categoryId := c.Param("id")
-	userID := c.GetString("userId")
+	categoryId := utils.StringToUint(c.Param("id"))
+	userID := utils.StringToUint(c.GetString("userId"))
 
 	category, err := p.service.Delete(c, categoryId, userID)
 	if err != nil {

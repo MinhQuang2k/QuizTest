@@ -12,11 +12,11 @@ import (
 )
 
 type ISubjectService interface {
-	GetAll(c context.Context, userID string) ([]*models.Subject, error)
-	GetByCategoryID(ctx context.Context, categoryID string) (*models.Subject, error)
+	GetAll(c context.Context, userID uint) ([]*models.Subject, error)
+	GetByCategoryID(ctx context.Context, categoryID uint) (*models.Subject, error)
 	Create(ctx context.Context, req *serializers.CreateSubjectReq) (*models.Subject, error)
-	Update(ctx context.Context, id string, req *serializers.UpdateSubjectReq) (*models.Subject, error)
-	Delete(ctx context.Context, id string, userID string) (*models.Subject, error)
+	Update(ctx context.Context, id uint, req *serializers.UpdateSubjectReq) (*models.Subject, error)
+	Delete(ctx context.Context, id uint, userID uint) (*models.Subject, error)
 }
 
 type SubjectService struct {
@@ -27,7 +27,7 @@ func NewSubjectService(repo repositories.ISubjectRepository) *SubjectService {
 	return &SubjectService{repo: repo}
 }
 
-func (p *SubjectService) GetByCategoryID(ctx context.Context, categoryID string) (*models.Subject, error) {
+func (p *SubjectService) GetByCategoryID(ctx context.Context, categoryID uint) (*models.Subject, error) {
 	subject, err := p.repo.GetByCategoryID(ctx, categoryID)
 	if err != nil {
 		return nil, err
@@ -36,7 +36,7 @@ func (p *SubjectService) GetByCategoryID(ctx context.Context, categoryID string)
 	return subject, nil
 }
 
-func (p *SubjectService) GetAll(ctx context.Context, CategoryID string) ([]*models.Subject, error) {
+func (p *SubjectService) GetAll(ctx context.Context, CategoryID uint) ([]*models.Subject, error) {
 	subjects, err := p.repo.GetAll(ctx, CategoryID)
 	if err != nil {
 		return nil, err
@@ -58,7 +58,7 @@ func (p *SubjectService) Create(ctx context.Context, req *serializers.CreateSubj
 	return &subject, nil
 }
 
-func (p *SubjectService) Update(ctx context.Context, id string, req *serializers.UpdateSubjectReq) (*models.Subject, error) {
+func (p *SubjectService) Update(ctx context.Context, id uint, req *serializers.UpdateSubjectReq) (*models.Subject, error) {
 	subject, err := p.repo.GetByID(ctx, id)
 	if err != nil {
 		logger.Errorf("Update.GetUserByID fail, id: %s, error: %s", id, err)
@@ -75,7 +75,7 @@ func (p *SubjectService) Update(ctx context.Context, id string, req *serializers
 	return subject, nil
 }
 
-func (p *SubjectService) Delete(ctx context.Context, id string, userID string) (*models.Subject, error) {
+func (p *SubjectService) Delete(ctx context.Context, id uint, userID uint) (*models.Subject, error) {
 	subject, err := p.repo.GetByID(ctx, id)
 	if err != nil {
 		logger.Errorf("Delete.GetUserByID fail, id: %s, error: %s", id, err)

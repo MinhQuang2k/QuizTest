@@ -53,7 +53,7 @@ func (p *SubjectAPI) Create(c *gin.Context) gohttp.Response {
 
 func (p *SubjectAPI) GetAll(c *gin.Context) gohttp.Response {
 	var res []*serializers.Subject
-	userID := c.GetString("userId")
+	userID := utils.StringToUint(c.GetString("userId"))
 	subjects, err := p.service.GetAll(c, userID)
 	if err != nil {
 		logger.Error(err.Error())
@@ -70,7 +70,7 @@ func (p *SubjectAPI) GetAll(c *gin.Context) gohttp.Response {
 }
 
 func (p *SubjectAPI) Update(c *gin.Context) gohttp.Response {
-	subjectId := c.Param("id")
+	subjectId := utils.StringToUint(c.Param("id"))
 	var req serializers.UpdateSubjectReq
 	if err := c.ShouldBindJSON(&req); c.Request.Body == nil || err != nil {
 		return gohttp.Response{
@@ -95,8 +95,8 @@ func (p *SubjectAPI) Update(c *gin.Context) gohttp.Response {
 }
 
 func (p *SubjectAPI) Delete(c *gin.Context) gohttp.Response {
-	subjectId := c.Param("id")
-	userID := c.GetString("userId")
+	subjectId := utils.StringToUint(c.Param("id"))
+	userID := utils.StringToUint(c.GetString("userId"))
 
 	subject, err := p.service.Delete(c, subjectId, userID)
 	if err != nil {

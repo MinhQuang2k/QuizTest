@@ -18,8 +18,8 @@ type ICategoryRepository interface {
 	Update(ctx context.Context, category *models.Category) error
 	Delete(ctx context.Context, category *models.Category) error
 	GetPaging(ctx context.Context, req *serializers.GetPagingCategoryReq) ([]*models.Category, *paging.Pagination, error)
-	GetByID(ctx context.Context, id string, userID string) (*models.Category, error)
-	GetAll(ctx context.Context, userID string) ([]*models.Category, error)
+	GetByID(ctx context.Context, id uint, userID uint) (*models.Category, error)
+	GetAll(ctx context.Context, userID uint) ([]*models.Category, error)
 }
 
 type CategoryRepo struct {
@@ -81,7 +81,7 @@ func (r *CategoryRepo) GetPaging(ctx context.Context, req *serializers.GetPaging
 	return categories, pagination, nil
 }
 
-func (r *CategoryRepo) GetAll(ctx context.Context, userID string) ([]*models.Category, error) {
+func (r *CategoryRepo) GetAll(ctx context.Context, userID uint) ([]*models.Category, error) {
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 
@@ -93,7 +93,7 @@ func (r *CategoryRepo) GetAll(ctx context.Context, userID string) ([]*models.Cat
 	return categories, nil
 }
 
-func (r *CategoryRepo) GetByID(ctx context.Context, id string, userID string) (*models.Category, error) {
+func (r *CategoryRepo) GetByID(ctx context.Context, id uint, userID uint) (*models.Category, error) {
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 

@@ -17,8 +17,8 @@ type IGroupQuestionRepository interface {
 	Create(ctx context.Context, groupQuestion *models.GroupQuestion) error
 	Update(ctx context.Context, groupQuestion *models.GroupQuestion) error
 	GetPaging(ctx context.Context, req *serializers.GetPagingGroupQuestionReq) ([]*models.GroupQuestion, *paging.Pagination, error)
-	GetByID(ctx context.Context, id string, userID string) (*models.GroupQuestion, error)
-	GetAll(ctx context.Context, userID string) ([]*models.GroupQuestion, error)
+	GetByID(ctx context.Context, id uint, userID uint) (*models.GroupQuestion, error)
+	GetAll(ctx context.Context, userID uint) ([]*models.GroupQuestion, error)
 	Delete(ctx context.Context, groupQuestion *models.GroupQuestion) error
 }
 
@@ -66,7 +66,7 @@ func (r *GroupQuestionRepo) GetPaging(ctx context.Context, req *serializers.GetP
 	return groupQuestions, pagination, nil
 }
 
-func (r *GroupQuestionRepo) GetAll(ctx context.Context, userID string) ([]*models.GroupQuestion, error) {
+func (r *GroupQuestionRepo) GetAll(ctx context.Context, userID uint) ([]*models.GroupQuestion, error) {
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 
@@ -78,7 +78,7 @@ func (r *GroupQuestionRepo) GetAll(ctx context.Context, userID string) ([]*model
 	return groupQuestions, nil
 }
 
-func (r *GroupQuestionRepo) GetByID(ctx context.Context, id string, userID string) (*models.GroupQuestion, error) {
+func (r *GroupQuestionRepo) GetByID(ctx context.Context, id uint, userID uint) (*models.GroupQuestion, error) {
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 

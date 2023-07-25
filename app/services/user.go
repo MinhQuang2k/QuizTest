@@ -18,9 +18,9 @@ import (
 type IUserService interface {
 	Login(ctx context.Context, req *serializers.LoginReq) (*models.User, string, string, error)
 	Register(ctx context.Context, req *serializers.RegisterReq) (*models.User, error)
-	GetUserByID(ctx context.Context, id string) (*models.User, error)
-	RefreshToken(ctx context.Context, userID string) (string, error)
-	ChangePassword(ctx context.Context, id string, req *serializers.ChangePasswordReq) error
+	GetUserByID(ctx context.Context, id uint) (*models.User, error)
+	RefreshToken(ctx context.Context, userID uint) (string, error)
+	ChangePassword(ctx context.Context, id uint, req *serializers.ChangePasswordReq) error
 }
 
 type UserService struct {
@@ -64,7 +64,7 @@ func (u *UserService) Register(ctx context.Context, req *serializers.RegisterReq
 	return &user, nil
 }
 
-func (u *UserService) GetUserByID(ctx context.Context, id string) (*models.User, error) {
+func (u *UserService) GetUserByID(ctx context.Context, id uint) (*models.User, error) {
 	user, err := u.repo.GetUserByID(ctx, id)
 	if err != nil {
 		logger.Errorf("GetUserByID fail, id: %s, error: %s", id, err)
@@ -74,7 +74,7 @@ func (u *UserService) GetUserByID(ctx context.Context, id string) (*models.User,
 	return user, nil
 }
 
-func (u *UserService) RefreshToken(ctx context.Context, userID string) (string, error) {
+func (u *UserService) RefreshToken(ctx context.Context, userID uint) (string, error) {
 	user, err := u.repo.GetUserByID(ctx, userID)
 	if err != nil {
 		logger.Errorf("RefreshToken.GetUserByID fail, id: %s, error: %s", userID, err)
@@ -90,7 +90,7 @@ func (u *UserService) RefreshToken(ctx context.Context, userID string) (string, 
 	return accessToken, nil
 }
 
-func (u *UserService) ChangePassword(ctx context.Context, id string, req *serializers.ChangePasswordReq) error {
+func (u *UserService) ChangePassword(ctx context.Context, id uint, req *serializers.ChangePasswordReq) error {
 	user, err := u.repo.GetUserByID(ctx, id)
 	if err != nil {
 		logger.Errorf("ChangePassword.GetUserByID fail, id: %s, error: %s", id, err)

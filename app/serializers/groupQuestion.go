@@ -6,14 +6,14 @@ import (
 )
 
 type GroupQuestion struct {
-	ID        string    `json:"id"`
+	ID        uint      `json:"id"`
 	Name      string    `json:"name"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type GetPagingGroupQuestionReq struct {
-	UserID    string `json:"user_id" validate:"required"`
+	UserID    uint   `json:"user_id" validate:"required"`
 	Name      string `json:"name,omitempty" form:"name"`
 	Page      int64  `json:"-" form:"page"`
 	Limit     int64  `json:"-" form:"limit"`
@@ -27,11 +27,11 @@ type GetPagingGroupQuestionRes struct {
 }
 
 type CreateGroupQuestionReq struct {
-	UserID string `json:"user_id" validate:"required"`
+	UserID uint   `json:"user_id" validate:"required"`
 	Name   string `json:"name" validate:"required"`
 }
 
 type UpdateGroupQuestionReq struct {
-	UserID string `json:"user_id" validate:"required"`
+	UserID uint   `json:"user_id" validate:"required"`
 	Name   string `json:"name,omitempty"`
 }

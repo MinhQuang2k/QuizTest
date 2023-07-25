@@ -1,7 +1,6 @@
 package models
 
 import (
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 
 	"quiztest/pkg/utils"
@@ -15,14 +14,13 @@ const (
 )
 
 type User struct {
-	Base
+	gorm.Model
 	Email    string   `json:"email" gorm:"unique;not null;index:idx_user_email"`
 	Password string   `json:"password"`
 	Role     UserRole `json:"role"`
 }
 
 func (user *User) BeforeCreate(tx *gorm.DB) error {
-	user.ID = uuid.New().String()
 	user.Password = utils.HashAndSalt([]byte(user.Password))
 	if user.Role == "" {
 		user.Role = UserRoleCustomer
