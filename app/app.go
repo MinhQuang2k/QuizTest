@@ -12,12 +12,14 @@ func InitGinEngine(
 	groupQuestionAPI *api.GroupQuestionAPI,
 	categoryAPI *api.CategoryAPI,
 	subjectAPI *api.SubjectAPI,
+	questionAPI *api.QuestionAPI,
+	examAPI *api.ExamAPI,
 ) *gin.Engine {
 	cfg := config.GetConfig()
 	if cfg.Environment == config.ProductionEnv {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	app := gin.Default()
-	api.RegisterAPI(app, userAPI, groupQuestionAPI, categoryAPI, subjectAPI)
+	api.RegisterAPI(app, userAPI, groupQuestionAPI, categoryAPI, subjectAPI, questionAPI, examAPI)
 	return app
 }

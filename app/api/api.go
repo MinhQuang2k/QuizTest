@@ -7,7 +7,7 @@ import (
 	"quiztest/pkg/http/wrapper"
 )
 
-func RegisterAPI(r *gin.Engine, userAPI *UserAPI, groupQuestionAPI *GroupQuestionAPI, categoryAPI *CategoryAPI, subjectAPI *SubjectAPI) {
+func RegisterAPI(r *gin.Engine, userAPI *UserAPI, groupQuestionAPI *GroupQuestionAPI, categoryAPI *CategoryAPI, subjectAPI *SubjectAPI, questionAPI *QuestionAPI, examAPI *ExamAPI) {
 
 	authMiddleware := middleware.JWTAuth()
 	refreshAuthMiddleware := middleware.JWTRefresh()
@@ -54,4 +54,24 @@ func RegisterAPI(r *gin.Engine, userAPI *UserAPI, groupQuestionAPI *GroupQuestio
 		subjectRoute.DELETE("/:id/:category_id", authMiddleware, wrapper.Wrap(subjectAPI.Delete))
 	}
 
+	// Question
+	questionRoute := api1.Group("/questions")
+	{
+		questionRoute.GET("", authMiddleware, wrapper.Wrap(questionAPI.GetPaging))
+		questionRoute.GET("/:id", authMiddleware, wrapper.Wrap(questionAPI.GetByID))
+		questionRoute.POST("", authMiddleware, wrapper.Wrap(questionAPI.Create))
+		questionRoute.POST("/clones/:id", authMiddleware, wrapper.Wrap(questionAPI.Clones))
+		questionRoute.PUT("/:id", authMiddleware, wrapper.Wrap(questionAPI.Update))
+		questionRoute.DELETE("/:id", authMiddleware, wrapper.Wrap(questionAPI.Delete))
+	}
+
+	// Exams
+	examRoute := api1.Group("/exams")
+	{
+		examRoute.GET("", authMiddleware, wrapper.Wrap(examAPI.GetPaging))
+		examRoute.GET("/:id", authMiddleware, wrapper.Wrap(examAPI.GetByID))
+		examRoute.POST("", authMiddleware, wrapper.Wrap(examAPI.Create))
+		examRoute.PUT("/:id", authMiddleware, wrapper.Wrap(examAPI.Update))
+		examRoute.DELETE("/:id", authMiddleware, wrapper.Wrap(examAPI.Delete))
+	}
 }

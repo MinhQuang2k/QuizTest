@@ -32,18 +32,24 @@ func main() {
 	groupQuestionRepo := repositories.NewGroupQuestionRepository()
 	subjectRepo := repositories.NewSubjectRepository()
 	categoryRepo := repositories.NewCategoryRepository()
+	questionRepo := repositories.NewQuestionRepository()
+	examRepo := repositories.NewExamRepository()
 
 	userSvc := services.NewUserService(userRepo)
 	groupQuestionSvc := services.NewGroupQuestionService(groupQuestionRepo)
 	subjectSvc := services.NewSubjectService(subjectRepo)
-	categorySvc := services.NewCategoryService(categoryRepo, subjectRepo)
+	categorySvc := services.NewCategoryService(categoryRepo)
+	questionSvc := services.NewQuestionService(questionRepo)
+	examSvc := services.NewExamService(examRepo)
 
 	userAPI := api.NewUserAPI(validator, userSvc)
 	groupQuestionAPI := api.NewGroupQuestionAPI(validator, groupQuestionSvc)
 	subjectAPI := api.NewSubjectAPI(validator, subjectSvc)
 	categoryAPI := api.NewCategoryAPI(validator, categorySvc)
+	questionAPI := api.NewQuestionAPI(validator, questionSvc)
+	examAPI := api.NewExamAPI(validator, examSvc)
 
-	engine := app.InitGinEngine(userAPI, groupQuestionAPI, categoryAPI, subjectAPI)
+	engine := app.InitGinEngine(userAPI, groupQuestionAPI, categoryAPI, subjectAPI, questionAPI, examAPI)
 
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%d", cfg.Port),

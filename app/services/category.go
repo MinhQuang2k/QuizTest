@@ -22,12 +22,11 @@ type ICategoryService interface {
 }
 
 type CategoryService struct {
-	repo    repositories.ICategoryRepository
-	repoSub repositories.ISubjectRepository
+	repo repositories.ICategoryRepository
 }
 
-func NewCategoryService(repo repositories.ICategoryRepository, repoSub repositories.ISubjectRepository) *CategoryService {
-	return &CategoryService{repo: repo, repoSub: repoSub}
+func NewCategoryService(repo repositories.ICategoryRepository) *CategoryService {
+	return &CategoryService{repo: repo}
 }
 
 func (p *CategoryService) Create(ctx context.Context, req *serializers.CreateCategoryReq) (*models.Category, error) {
