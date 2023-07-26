@@ -50,7 +50,8 @@ func RegisterAPI(r *gin.Engine, userAPI *UserAPI, groupQuestionAPI *GroupQuestio
 	{
 		subjectRoute.POST("", authMiddleware, wrapper.Wrap(subjectAPI.Create))
 		subjectRoute.PUT("/:id", authMiddleware, wrapper.Wrap(subjectAPI.Update))
-		subjectRoute.DELETE("/:id", authMiddleware, wrapper.Wrap(subjectAPI.Delete))
+		subjectRoute.PUT("/move/:id", authMiddleware, wrapper.Wrap(subjectAPI.Move))
+		subjectRoute.DELETE("/:id/:category_id", authMiddleware, wrapper.Wrap(subjectAPI.Delete))
 	}
 
 }

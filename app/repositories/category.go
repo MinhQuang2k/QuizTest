@@ -74,6 +74,7 @@ func (r *CategoryRepo) GetPaging(ctx context.Context, req *serializers.GetPaging
 
 	var categories []*models.Category
 	if err := query.
+		Preload("Subjects").
 		Limit(int(pagination.Limit)).
 		Offset(int(pagination.Skip)).
 		Order(order).
@@ -89,7 +90,9 @@ func (r *CategoryRepo) GetAll(ctx context.Context, userID uint) ([]*models.Categ
 	defer cancel()
 
 	var categories []*models.Category
-	if err := r.db.Where("user_id = ?", userID).Find(&categories).Error; err != nil {
+	if err := r.db.Where("user_id = ?", userID).
+		Preload("Subjects").
+		Find(&categories).Error; err != nil {
 		return nil, errors.ErrorDatabaseGet.Newm(err.Error())
 	}
 

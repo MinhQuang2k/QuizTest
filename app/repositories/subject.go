@@ -7,6 +7,7 @@ import (
 
 	"quiztest/app/dbs"
 	"quiztest/app/models"
+	"quiztest/app/serializers"
 	"quiztest/config"
 	"quiztest/pkg/errors"
 )
@@ -14,8 +15,9 @@ import (
 type ISubjectRepository interface {
 	Create(ctx context.Context, subject *models.Subject) error
 	Update(ctx context.Context, subject *models.Subject) error
+	Move(ctx context.Context, req *serializers.MoveSubjectReq, subject *models.Subject) error
 	Delete(ctx context.Context, subject *models.Subject) error
-	GetByID(ctx context.Context, id uint) (*models.Subject, error)
+	GetByID(ctx context.Context, id uint, categoryID uint) (*models.Subject, error)
 }
 
 type SubjectRepo struct {
@@ -55,6 +57,24 @@ func (r *SubjectRepo) Update(ctx context.Context, subject *models.Subject) error
 
 	return nil
 }
+func (r *SubjectRepo) Move(ctx context.Context, req *serializers.MoveSubjectReq, subject *models.Subject) error {
+	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
+	defer cancel()
+	var newSubject models.Subject
+	if err := r.db.Where("category_id = ?", req.NewCategoryID).
+		Where("name = ?", subject.Name).
+		First(&newSubject).Error; err == nil {
+		return errors.ErrorExistName.New()
+	}
+
+	subject.CategoryID = req.NewCategoryID
+
+	if err := r.db.Save(&subject).Error; err != nil {
+		return errors.ErrorDatabaseUpdate.Newm(err.Error())
+	}
+
+	return nil
+}
 
 func (r *SubjectRepo) Delete(ctx context.Context, subject *models.Subject) error {
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
@@ -80,13 +100,13 @@ func (r *SubjectRepo) GetAll(ctx context.Context, categoryID uint) ([]*models.Su
 	return subjects, nil
 }
 
-func (r *SubjectRepo) GetByID(ctx context.Context, id uint) (*models.Subject, error) {
+func (r *SubjectRepo) GetByID(ctx context.Context, id uint, categoryID uint) (*models.Subject, error) {
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 
 	var subject models.Subject
-	if err := r.db.Where("id = ?", id).First(&subject).Error; err != nil {
-		return nil, errors.ErrorDatabaseGet.Newm(err.Error())
+	if err := r.db.Where("id = ?", id).Where("category_id = ?", categoryID).First(&subject).Error; err != nil {
+		return nil, errors.ErrorNotFound.Newm(err.Error())
 	}
 
 	return &subject, nil

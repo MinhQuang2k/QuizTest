@@ -76,11 +76,37 @@ func (p *SubjectAPI) Update(c *gin.Context) gohttp.Response {
 	}
 }
 
+func (p *SubjectAPI) Move(c *gin.Context) gohttp.Response {
+	subjectId := utils.StringToUint(c.Param("id"))
+	var req serializers.MoveSubjectReq
+	if err := c.ShouldBindJSON(&req); c.Request.Body == nil || err != nil {
+		return gohttp.Response{
+			Error: errors.InvalidParams.Newm(err.Error()),
+		}
+	}
+
+	subject, err := p.service.Move(c, subjectId, &req)
+	if err != nil {
+		logger.Error(err.Error())
+		return gohttp.Response{
+			Error: err,
+		}
+	}
+
+	var res serializers.Subject
+	utils.Copy(&res, &subject)
+	return gohttp.Response{
+		Error: errors.Success.New(),
+		Data:  res,
+	}
+}
+
 func (p *SubjectAPI) Delete(c *gin.Context) gohttp.Response {
 	subjectId := utils.StringToUint(c.Param("id"))
+	categoryID := utils.StringToUint(c.Param("category_id"))
 	userID := c.MustGet("userId").(uint)
 
-	subject, err := p.service.Delete(c, subjectId, userID)
+	subject, err := p.service.Delete(c, subjectId, categoryID, userID)
 	if err != nil {
 		logger.Error(err.Error())
 		return gohttp.Response{
