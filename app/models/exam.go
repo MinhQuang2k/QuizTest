@@ -12,7 +12,5 @@ type Exam struct {
 	ShuffleQuestion bool   `json:"shuffle_question" gorm:"default:false"`
 	SubjectID       uint   `json:"subject_id"`
 	Subject         *Subject
-	UserID          uint `json:"user_id"`
-	User            *User
-	Questions       []*Question `gorm:"many2many:exam_questions;"`
+	Questions       []uint `gorm:"type:json"`
 }

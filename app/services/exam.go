@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 
+	"quiztest/pkg/errors"
 	"quiztest/pkg/logger"
 
 	"quiztest/app/models"
@@ -18,15 +19,17 @@ type IExamService interface {
 	GetByID(ctx context.Context, id uint, userID uint) (*models.Exam, error)
 	Create(ctx context.Context, req *serializers.CreateExamReq) (*models.Exam, error)
 	Update(ctx context.Context, id uint, req *serializers.UpdateExamReq) (*models.Exam, error)
+	AddQuestion(ctx context.Context, id, question_id, userID uint) (*models.Exam, error)
 	Delete(ctx context.Context, id uint, userID uint) (*models.Exam, error)
 }
 
 type ExamService struct {
-	repo repositories.IExamRepository
+	repo         repositories.IExamRepository
+	repoQuestion repositories.IQuestionRepository
 }
 
-func NewExamService(repo repositories.IExamRepository) *ExamService {
-	return &ExamService{repo: repo}
+func NewExamService(repo repositories.IExamRepository, repoQuestion repositories.IQuestionRepository) *ExamService {
+	return &ExamService{repo: repo, repoQuestion: repoQuestion}
 }
 
 func (p *ExamService) GetByID(ctx context.Context, id uint, userID uint) (*models.Exam, error) {
@@ -59,7 +62,7 @@ func (p *ExamService) Create(ctx context.Context, req *serializers.CreateExamReq
 	var exam models.Exam
 	utils.Copy(&exam, req)
 
-	err := p.repo.Create(ctx, &exam)
+	err := p.repo.Create(ctx, &exam, req.UserID)
 	if err != nil {
 		logger.Errorf("Create fail, error: %s", err)
 		return nil, err
@@ -95,6 +98,33 @@ func (p *ExamService) Delete(ctx context.Context, id uint, userID uint) (*models
 	err = p.repo.Delete(ctx, exam)
 	if err != nil {
 		logger.Errorf("Delete fail, id: %s, error: %s", id, err)
+		return nil, err
+	}
+
+	return exam, nil
+}
+
+func (p *ExamService) AddQuestion(ctx context.Context, id, question_id, userID uint) (*models.Exam, error) {
+	question, err := p.repoQuestion.GetByID(ctx, question_id, userID)
+	if err != nil {
+		logger.Errorf("AddQuestion.GetQuestion fail, id: %s, error: %s", question_id, err)
+		return nil, err
+	}
+
+	exam, err := p.repo.GetByID(ctx, id, userID)
+	if err != nil {
+		logger.Errorf("AddQuestion.GetExam fail, id: %s, error: %s", id, err)
+		return nil, err
+	}
+
+	if utils.FindUint(exam.Questions, question.ID) != 0 {
+		logger.Errorf("Question exits fail, id: %s, error: %s", id, err)
+		return nil, errors.ErrorDatabaseCreate.Newm("question exist")
+	}
+	exam.Questions = append(exam.Questions, question.ID)
+	err = p.repo.Update(ctx, exam)
+	if err != nil {
+		logger.Errorf("Update fail, id: %s, error: %s", id, err)
 		return nil, err
 	}
 

@@ -19,6 +19,4 @@ type Question struct {
 	FillBlankCorrectAnswer datatypes.JSON `json:"fill_blank_correct_answer" gorm:"type:json"`
 	GroupQuestionID        uint           `json:"group_question_id"`
 	GroupQuestion          *GroupQuestion
-	UserID                 uint `json:"user_id"`
-	User                   *User
 }

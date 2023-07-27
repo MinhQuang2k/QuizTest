@@ -126,6 +126,27 @@ func (p *ExamAPI) Update(c *gin.Context) gohttp.Response {
 	}
 }
 
+func (p *ExamAPI) AddQuestion(c *gin.Context) gohttp.Response {
+	examId := utils.StringToUint(c.Param("exam_id"))
+	questionID := utils.StringToUint(c.Param("question_id"))
+	userID := c.MustGet("userId").(uint)
+
+	exam, err := p.service.AddQuestion(c, examId, questionID, userID)
+	if err != nil {
+		logger.Error(err.Error())
+		return gohttp.Response{
+			Error: err,
+		}
+	}
+
+	var res serializers.Exam
+	utils.Copy(&res, &exam)
+	return gohttp.Response{
+		Error: errors.Success.New(),
+		Data:  res,
+	}
+}
+
 func (p *ExamAPI) GetByID(c *gin.Context) gohttp.Response {
 	var res serializers.Exam
 	userID := c.MustGet("userId").(uint)

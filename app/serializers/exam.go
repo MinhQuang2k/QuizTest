@@ -6,16 +6,16 @@ import (
 )
 
 type Exam struct {
-	ID              uint   `json:"id"`
-	Name            string `json:"name"`
-	TimeLimit       uint   `json:"time_limit"`
-	Description     string `json:"description"`
-	ShuffleQuestion bool   `json:"shuffle_question"`
-	SubjectID       uint   `json:"subject_id"`
-	UserID          uint   `json:"user_id"`
-	Questions       []*Question
-	CreatedAt       time.Time `json:"created_at"`
-	UpdatedAt       time.Time `json:"updated_at"`
+	ID              uint        `json:"id"`
+	Name            string      `json:"name"`
+	TimeLimit       uint        `json:"time_limit"`
+	Description     string      `json:"description"`
+	ShuffleQuestion bool        `json:"shuffle_question"`
+	SubjectID       uint        `json:"subject_id"`
+	UserID          uint        `json:"user_id"`
+	Questions       []*Question `json:"questions"`
+	CreatedAt       time.Time   `json:"created_at"`
+	UpdatedAt       time.Time   `json:"updated_at"`
 }
 
 type GetPagingExamReq struct {

@@ -40,7 +40,7 @@ func main() {
 	subjectSvc := services.NewSubjectService(subjectRepo)
 	categorySvc := services.NewCategoryService(categoryRepo)
 	questionSvc := services.NewQuestionService(questionRepo)
-	examSvc := services.NewExamService(examRepo)
+	examSvc := services.NewExamService(examRepo, questionRepo)
 
 	userAPI := api.NewUserAPI(validator, userSvc)
 	groupQuestionAPI := api.NewGroupQuestionAPI(validator, groupQuestionSvc)

@@ -78,7 +78,7 @@ func (p *QuestionService) Update(ctx context.Context, id uint, req *serializers.
 	}
 
 	utils.Copy(question, req)
-	err = p.repo.Update(ctx, question)
+	err = p.repo.Update(ctx, question, req.UserID)
 	if err != nil {
 		logger.Errorf("Update fail, id: %s, error: %s", id, err)
 		return nil, err
