@@ -147,11 +147,29 @@ func (p *ExamAPI) AddQuestion(c *gin.Context) gohttp.Response {
 	}
 }
 
+func (p *ExamAPI) DeleteQuestion(c *gin.Context) gohttp.Response {
+	examId := utils.StringToUint(c.Param("exam_id"))
+	questionID := utils.StringToUint(c.Param("question_id"))
+	userID := c.MustGet("userId").(uint)
+
+	err := p.service.DeleteQuestion(c, examId, questionID, userID)
+	if err != nil {
+		logger.Error(err.Error())
+		return gohttp.Response{
+			Error: err,
+		}
+	}
+
+	return gohttp.Response{
+		Error: errors.Success.New(),
+	}
+}
+
 func (p *ExamAPI) GetByID(c *gin.Context) gohttp.Response {
 	var res serializers.Exam
 	userID := c.MustGet("userId").(uint)
 	examId := utils.StringToUint(c.Param("id"))
-	exam, err := p.service.GetByID(c, examId, userID)
+	exam, questions, err := p.service.GetByID(c, examId, userID)
 	if err != nil {
 		logger.Error(err.Error())
 		return gohttp.Response{
@@ -160,6 +178,7 @@ func (p *ExamAPI) GetByID(c *gin.Context) gohttp.Response {
 	}
 
 	utils.Copy(&res, &exam)
+	utils.Copy(&res.Questions, &questions)
 	return gohttp.Response{
 		Error: errors.Success.New(),
 		Data:  res,
@@ -183,5 +202,29 @@ func (p *ExamAPI) Delete(c *gin.Context) gohttp.Response {
 	return gohttp.Response{
 		Error: errors.Success.New(),
 		Data:  res,
+	}
+}
+
+func (p *ExamAPI) MoveQuestion(c *gin.Context) gohttp.Response {
+	var req serializers.MoveExamReq
+
+	if err := c.ShouldBindJSON(&req); c.Request.Body == nil || err != nil {
+		return gohttp.Response{
+			Error: errors.InvalidParams.Newm(err.Error()),
+		}
+	}
+
+	req.UserID = c.MustGet("userId").(uint)
+
+	err := p.service.MoveQuestion(c, &req)
+	if err != nil {
+		logger.Error(err.Error())
+		return gohttp.Response{
+			Error: err,
+		}
+	}
+
+	return gohttp.Response{
+		Error: errors.Success.New(),
 	}
 }

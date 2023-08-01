@@ -20,6 +20,7 @@ type IQuestionRepository interface {
 	Update(ctx context.Context, question *models.Question, userID uint) error
 	GetPaging(ctx context.Context, req *serializers.GetPagingQuestionReq) ([]*models.Question, *paging.Pagination, error)
 	GetByID(ctx context.Context, id uint, userID uint) (*models.Question, error)
+	GetByExamID(ctx context.Context, id uint) ([]*models.Question, error)
 	Delete(ctx context.Context, question *models.Question) error
 }
 
@@ -78,12 +79,30 @@ func (r *QuestionRepo) GetByID(ctx context.Context, id uint, userID uint) (*mode
 		Select("questions.*").
 		Joins("JOIN group_questions ON group_questions.id = questions.group_question_id").
 		Where("questions.id = ?", id).
+		Where("questions.deleted_at IS NULL").
 		Where("group_questions.user_id = ?", userID).
 		First(&question).Error; err != nil {
 		return nil, errors.ErrorDatabaseGet.Newm(err.Error())
 	}
 
 	return &question, nil
+}
+
+func (r *QuestionRepo) GetByExamID(ctx context.Context, examID uint) ([]*models.Question, error) {
+	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
+	defer cancel()
+
+	var questions []*models.Question
+	if err := r.db.Table("questions").
+		Select("questions.*").
+		Joins("JOIN exam_questions ON exam_questions.question_id = questions.id").
+		Where("exam_questions.exam_id = ?", examID).
+		Where("exam_questions.deleted_at IS NULL").
+		Find(&questions).Error; err != nil {
+		return nil, errors.ErrorDatabaseGet.Newm(err.Error())
+	}
+
+	return questions, nil
 }
 
 func (r *QuestionRepo) Create(ctx context.Context, question *models.Question) error {

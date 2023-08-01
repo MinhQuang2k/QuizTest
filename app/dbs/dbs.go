@@ -37,9 +37,11 @@ func Init() {
 func Migrate() {
 	User := models.User{}
 	Category := models.Category{}
+	ExamQuestion := models.ExamQuestion{}
 	Exam := models.Exam{}
 	GroupQuestion := models.GroupQuestion{}
 	Question := models.Question{}
 	Subject := models.Subject{}
-	Database.AutoMigrate(&User, &GroupQuestion, &Category, &Subject, &Exam, &Question)
+	Room := models.Room{}
+	Database.AutoMigrate(&User, &GroupQuestion, &Category, &Subject, &ExamQuestion, &Exam, &Question, &Room)
 }

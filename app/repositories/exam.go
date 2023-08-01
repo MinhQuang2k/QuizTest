@@ -16,10 +16,13 @@ import (
 type IExamRepository interface {
 	Create(ctx context.Context, exam *models.Exam, userID uint) error
 	Update(ctx context.Context, exam *models.Exam) error
+	UpdateExamQuestion(ctx context.Context, examQuestion *models.ExamQuestion) error
 	GetPaging(ctx context.Context, req *serializers.GetPagingExamReq) ([]*models.Exam, *paging.Pagination, error)
 	GetByID(ctx context.Context, id uint, userID uint) (*models.Exam, error)
+	GetExamQuestionByID(ctx context.Context, examID uint, questionID uint) (*models.ExamQuestion, error)
 	GetAll(ctx context.Context, userID uint) ([]*models.Exam, error)
 	Delete(ctx context.Context, exam *models.Exam) error
+	DeleteExamQuestion(ctx context.Context, examQuestion *models.ExamQuestion) error
 }
 
 type ExamRepo struct {
@@ -40,6 +43,7 @@ func (r *ExamRepo) GetPaging(ctx context.Context, req *serializers.GetPagingExam
 		Joins("JOIN subjects ON subjects.id = exams.subject_id").
 		Joins("JOIN categories ON categories.id = subjects.category_id").
 		Where("categories.user_id = ?", req.UserID)
+
 	order := "exams.created_at"
 	if req.Name != "" {
 		query = query.Where("name LIKE ?", "%"+req.Name+"%")
@@ -130,10 +134,45 @@ func (r *ExamRepo) Update(ctx context.Context, exam *models.Exam) error {
 	return nil
 }
 
+func (r *ExamRepo) UpdateExamQuestion(ctx context.Context, examQuestion *models.ExamQuestion) error {
+	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
+	defer cancel()
+
+	if err := r.db.Save(&examQuestion).Error; err != nil {
+		return errors.ErrorDatabaseUpdate.Newm(err.Error())
+	}
+
+	return nil
+}
+
 func (r *ExamRepo) Delete(ctx context.Context, exam *models.Exam) error {
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 	rowsAffected := r.db.Delete(&exam).RowsAffected
+
+	if rowsAffected == 0 {
+		return errors.ErrorNotFound.New()
+	}
+
+	return nil
+}
+
+func (r *ExamRepo) GetExamQuestionByID(ctx context.Context, examID uint, questionID uint) (*models.ExamQuestion, error) {
+	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
+	defer cancel()
+
+	var examQuestion models.ExamQuestion
+	if err := r.db.Where("exam_id = ?", examID).Where("question_id = ?", questionID).First(&examQuestion).Error; err != nil {
+		return nil, errors.ErrorDatabaseGet.Newm(err.Error())
+	}
+
+	return &examQuestion, nil
+}
+
+func (r *ExamRepo) DeleteExamQuestion(ctx context.Context, examQuestion *models.ExamQuestion) error {
+	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
+	defer cancel()
+	rowsAffected := r.db.Delete(&examQuestion).RowsAffected
 
 	if rowsAffected == 0 {
 		return errors.ErrorNotFound.New()

@@ -14,6 +14,7 @@ type Exam struct {
 	SubjectID       uint        `json:"subject_id"`
 	UserID          uint        `json:"user_id"`
 	Questions       []*Question `json:"questions"`
+	Rooms           []*Room     `json:"rooms"`
 	CreatedAt       time.Time   `json:"created_at"`
 	UpdatedAt       time.Time   `json:"updated_at"`
 }
@@ -49,4 +50,11 @@ type UpdateExamReq struct {
 	Description     string `json:"description"`
 	ShuffleQuestion bool   `json:"shuffle_question"`
 	SubjectID       uint   `json:"subject_id"`
+}
+
+type MoveExamReq struct {
+	UserID         uint `json:"user_id" validate:"required"`
+	ExamID         uint `json:"exam_id" validate:"required"`
+	QuestionID     uint `json:"question_id" validate:"required"`
+	QuestionMoveID uint `json:"question_move_id" validate:"required"`
 }

@@ -72,7 +72,9 @@ func RegisterAPI(r *gin.Engine, userAPI *UserAPI, groupQuestionAPI *GroupQuestio
 		examRoute.GET("/:id", authMiddleware, wrapper.Wrap(examAPI.GetByID))
 		examRoute.POST("", authMiddleware, wrapper.Wrap(examAPI.Create))
 		examRoute.PUT("/:id", authMiddleware, wrapper.Wrap(examAPI.Update))
-		examRoute.PATCH("/add/:exam_id/:question_id", authMiddleware, wrapper.Wrap(examAPI.AddQuestion))
+		examRoute.POST("/add/:exam_id/:question_id", authMiddleware, wrapper.Wrap(examAPI.AddQuestion))
+		examRoute.DELETE("/delete/:exam_id/:question_id", authMiddleware, wrapper.Wrap(examAPI.DeleteQuestion))
+		examRoute.PUT("/move", authMiddleware, wrapper.Wrap(examAPI.MoveQuestion))
 		examRoute.DELETE("/:id", authMiddleware, wrapper.Wrap(examAPI.Delete))
 	}
 }
