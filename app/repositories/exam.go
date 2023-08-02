@@ -39,7 +39,7 @@ func (r *ExamRepo) GetPaging(ctx context.Context, req *serializers.GetPagingExam
 	var total int64
 	var exams []*models.Exam
 
-	query := r.db.Table("exams").
+	query := r.db.Preload("Rooms").
 		Joins("JOIN subjects ON subjects.id = exams.subject_id").
 		Joins("JOIN categories ON categories.id = subjects.category_id").
 		Where("categories.user_id = ?", req.UserID)
@@ -59,17 +59,13 @@ func (r *ExamRepo) GetPaging(ctx context.Context, req *serializers.GetPagingExam
 		}
 	}
 
-	if err := query.Model(&models.Exam{}).Count(&total).Error; err != nil {
-		return nil, nil, errors.ErrorDatabaseCreate.Newm(err.Error())
-	}
-
 	pagination := paging.New(req.Page, req.Limit, total)
 
 	if err := query.
 		Limit(int(pagination.Limit)).
 		Offset(int(pagination.Skip)).
 		Order(order).
-		Scan(&exams).
+		Find(&exams).
 		Count(&total).Error; err != nil {
 		return nil, nil, nil
 	}
@@ -84,10 +80,10 @@ func (r *ExamRepo) GetAll(ctx context.Context, userID uint) ([]*models.Exam, err
 	defer cancel()
 
 	var exams []*models.Exam
-	if err := r.db.Table("exams").
+	if err := r.db.
 		Joins("JOIN subjects ON subjects.id = exams.subject_id").
 		Joins("JOIN categories ON categories.id = subjects.category_id").
-		Where("categories.user_id = ?", userID).Scan(&exams).Error; err != nil {
+		Where("categories.user_id = ?", userID).Find(&exams).Error; err != nil {
 		return nil, errors.ErrorDatabaseGet.Newm(err.Error())
 	}
 
@@ -99,8 +95,7 @@ func (r *ExamRepo) GetByID(ctx context.Context, id uint, userID uint) (*models.E
 	defer cancel()
 
 	var exam models.Exam
-	if err := r.db.Table("exams").
-		Select("exams.*").
+	if err := r.db.Preload("Rooms").
 		Joins("JOIN subjects ON subjects.id = exams.subject_id").
 		Joins("JOIN categories ON categories.id = subjects.category_id").
 		Where("categories.user_id = ?", userID).

@@ -7,7 +7,7 @@ import (
 	"quiztest/pkg/http/wrapper"
 )
 
-func RegisterAPI(r *gin.Engine, userAPI *UserAPI, groupQuestionAPI *GroupQuestionAPI, categoryAPI *CategoryAPI, subjectAPI *SubjectAPI, questionAPI *QuestionAPI, examAPI *ExamAPI) {
+func RegisterAPI(r *gin.Engine, userAPI *UserAPI, groupQuestionAPI *GroupQuestionAPI, categoryAPI *CategoryAPI, subjectAPI *SubjectAPI, questionAPI *QuestionAPI, examAPI *ExamAPI, roomAPI *RoomAPI) {
 
 	authMiddleware := middleware.JWTAuth()
 	refreshAuthMiddleware := middleware.JWTRefresh()
@@ -76,5 +76,16 @@ func RegisterAPI(r *gin.Engine, userAPI *UserAPI, groupQuestionAPI *GroupQuestio
 		examRoute.DELETE("/delete/:exam_id/:question_id", authMiddleware, wrapper.Wrap(examAPI.DeleteQuestion))
 		examRoute.PUT("/move", authMiddleware, wrapper.Wrap(examAPI.MoveQuestion))
 		examRoute.DELETE("/:id", authMiddleware, wrapper.Wrap(examAPI.Delete))
+	}
+
+	// Rooms
+	roomRoute := api1.Group("/rooms")
+	{
+		roomRoute.GET("", authMiddleware, wrapper.Wrap(roomAPI.GetPaging))
+		roomRoute.GET("/code", wrapper.Wrap(roomAPI.GetCodeRoom))
+		roomRoute.GET("/:id", authMiddleware, wrapper.Wrap(roomAPI.GetByID))
+		roomRoute.POST("", authMiddleware, wrapper.Wrap(roomAPI.Create))
+		roomRoute.PUT("/:id", authMiddleware, wrapper.Wrap(roomAPI.Update))
+		roomRoute.DELETE("/:id", authMiddleware, wrapper.Wrap(roomAPI.Delete))
 	}
 }

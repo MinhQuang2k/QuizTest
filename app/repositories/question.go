@@ -37,7 +37,7 @@ func (r *QuestionRepo) GetPaging(ctx context.Context, req *serializers.GetPaging
 	defer cancel()
 	var total int64
 	var questions []*models.Question
-	query := r.db.Table("questions").
+	query := r.db.
 		Joins("JOIN group_questions ON group_questions.id = questions.group_question_id").
 		Where("group_questions.user_id = ?", req.UserID)
 
@@ -61,7 +61,7 @@ func (r *QuestionRepo) GetPaging(ctx context.Context, req *serializers.GetPaging
 		Limit(int(pagination.Limit)).
 		Offset(int(pagination.Skip)).
 		Order(order).
-		Scan(&questions).
+		Find(&questions).
 		Count(&total).Error; err != nil {
 		return nil, nil, nil
 	}
@@ -75,8 +75,7 @@ func (r *QuestionRepo) GetByID(ctx context.Context, id uint, userID uint) (*mode
 	defer cancel()
 
 	var question models.Question
-	if err := r.db.Table("questions").
-		Select("questions.*").
+	if err := r.db.
 		Joins("JOIN group_questions ON group_questions.id = questions.group_question_id").
 		Where("questions.id = ?", id).
 		Where("questions.deleted_at IS NULL").
@@ -93,8 +92,7 @@ func (r *QuestionRepo) GetByExamID(ctx context.Context, examID uint) ([]*models.
 	defer cancel()
 
 	var questions []*models.Question
-	if err := r.db.Table("questions").
-		Select("questions.*").
+	if err := r.db.
 		Joins("JOIN exam_questions ON exam_questions.question_id = questions.id").
 		Where("exam_questions.exam_id = ?", examID).
 		Where("exam_questions.deleted_at IS NULL").

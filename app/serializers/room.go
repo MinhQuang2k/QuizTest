@@ -32,6 +32,10 @@ type GetPagingRoomReq struct {
 	OrderDesc bool   `json:"-" form:"order_desc"`
 }
 
+type GetCodeRoomReq struct {
+	Limit int `json:"limit" form:"limit"`
+}
+
 type GetPagingRoomRes struct {
 	Rooms      []*Room            `json:"rows"`
 	Pagination *paging.Pagination `json:"pagination"`
