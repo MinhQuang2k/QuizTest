@@ -2,10 +2,7 @@ package utils
 
 import (
 	"encoding/json"
-	"fmt"
-	"math/rand"
 	"strconv"
-	"strings"
 )
 
 func Copy(dest interface{}, src interface{}) {
@@ -20,18 +17,6 @@ func FindUint(a []uint, x uint) uint {
 		}
 	}
 	return 0
-}
-
-func GenerateRandomString(length int) (string, error) {
-	randomBytes := make([]byte, length)
-
-	_, err := rand.Read(randomBytes)
-	if err != nil {
-		return "", err
-	}
-
-	randomString := fmt.Sprintf("%x", randomBytes)
-	return strings.ToUpper(randomString), nil
 }
 
 func StringToUint(s string) uint {

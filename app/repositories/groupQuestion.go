@@ -3,9 +3,7 @@ package repositories
 import (
 	"context"
 
-	"gorm.io/gorm"
-
-	"quiztest/app/dbs"
+	"quiztest/app/interfaces"
 	"quiztest/app/models"
 	"quiztest/app/serializers"
 	"quiztest/config"
@@ -13,28 +11,19 @@ import (
 	"quiztest/pkg/paging"
 )
 
-type IGroupQuestionRepository interface {
-	Create(ctx context.Context, groupQuestion *models.GroupQuestion) error
-	Update(ctx context.Context, groupQuestion *models.GroupQuestion) error
-	GetPaging(ctx context.Context, req *serializers.GetPagingGroupQuestionReq) ([]*models.GroupQuestion, *paging.Pagination, error)
-	GetByID(ctx context.Context, id uint, userID uint) (*models.GroupQuestion, error)
-	GetAll(ctx context.Context, userID uint) ([]*models.GroupQuestion, error)
-	Delete(ctx context.Context, groupQuestion *models.GroupQuestion) error
-}
-
 type GroupQuestionRepo struct {
-	db *gorm.DB
+	db interfaces.IDatabase
 }
 
-func NewGroupQuestionRepository() *GroupQuestionRepo {
-	return &GroupQuestionRepo{db: dbs.Database}
+func NewGroupQuestionRepository(db interfaces.IDatabase) interfaces.IGroupQuestionRepository {
+	return &GroupQuestionRepo{db: db}
 }
 
 func (r *GroupQuestionRepo) GetPaging(ctx context.Context, req *serializers.GetPagingGroupQuestionReq) ([]*models.GroupQuestion, *paging.Pagination, error) {
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 
-	query := r.db
+	query := r.db.GetInstance()
 	order := "created_at"
 	if req.Name != "" {
 		query = query.
@@ -71,7 +60,7 @@ func (r *GroupQuestionRepo) GetAll(ctx context.Context, userID uint) ([]*models.
 	defer cancel()
 
 	var groupQuestions []*models.GroupQuestion
-	if err := r.db.Where("user_id = ?", userID).Find(&groupQuestions).Error; err != nil {
+	if err := r.db.GetInstance().Where("user_id = ?", userID).Find(&groupQuestions).Error; err != nil {
 		return nil, errors.ErrorDatabaseGet.Newm(err.Error())
 	}
 
@@ -83,7 +72,7 @@ func (r *GroupQuestionRepo) GetByID(ctx context.Context, id uint, userID uint) (
 	defer cancel()
 
 	var groupQuestion models.GroupQuestion
-	if err := r.db.Where("id = ?", id).Where("user_id = ?", userID).First(&groupQuestion).Error; err != nil {
+	if err := r.db.GetInstance().Where("id = ?", id).Where("user_id = ?", userID).First(&groupQuestion).Error; err != nil {
 		return nil, errors.ErrorDatabaseGet.Newm(err.Error())
 	}
 
@@ -94,11 +83,11 @@ func (r *GroupQuestionRepo) Create(ctx context.Context, groupQuestion *models.Gr
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 
-	if err := r.db.Where("name = ?", groupQuestion.Name).Where("user_id = ?", groupQuestion.UserID).First(&groupQuestion).Error; err == nil {
+	if err := r.db.GetInstance().Where("name = ?", groupQuestion.Name).Where("user_id = ?", groupQuestion.UserID).First(&groupQuestion).Error; err == nil {
 		return errors.ErrorExistName.New()
 	}
 
-	if err := r.db.Create(&groupQuestion).Error; err != nil {
+	if err := r.db.GetInstance().Create(&groupQuestion).Error; err != nil {
 		return errors.ErrorDatabaseCreate.Newm(err.Error())
 	}
 
@@ -109,11 +98,11 @@ func (r *GroupQuestionRepo) Update(ctx context.Context, groupQuestion *models.Gr
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 
-	if err := r.db.Where("name = ?", groupQuestion.Name).Where("user_id = ?", groupQuestion.UserID).First(&groupQuestion).Error; err == nil {
+	if err := r.db.GetInstance().Where("name = ?", groupQuestion.Name).Where("user_id = ?", groupQuestion.UserID).First(&groupQuestion).Error; err == nil {
 		return errors.ErrorExistName.New()
 	}
 
-	if err := r.db.Save(&groupQuestion).Error; err != nil {
+	if err := r.db.GetInstance().Save(&groupQuestion).Error; err != nil {
 		return errors.ErrorDatabaseUpdate.Newm(err.Error())
 	}
 
@@ -123,7 +112,7 @@ func (r *GroupQuestionRepo) Update(ctx context.Context, groupQuestion *models.Gr
 func (r *GroupQuestionRepo) Delete(ctx context.Context, groupQuestion *models.GroupQuestion) error {
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
-	rowsAffected := r.db.Delete(&groupQuestion).RowsAffected
+	rowsAffected := r.db.GetInstance().Delete(&groupQuestion).RowsAffected
 
 	if rowsAffected == 0 {
 		return errors.ErrorNotFound.New()

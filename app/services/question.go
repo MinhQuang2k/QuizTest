@@ -5,27 +5,18 @@ import (
 
 	"quiztest/pkg/logger"
 
+	"quiztest/app/interfaces"
 	"quiztest/app/models"
-	"quiztest/app/repositories"
 	"quiztest/app/serializers"
 	"quiztest/pkg/paging"
 	"quiztest/pkg/utils"
 )
 
-type IQuestionService interface {
-	GetPaging(c context.Context, req *serializers.GetPagingQuestionReq) ([]*models.Question, *paging.Pagination, error)
-	GetByID(ctx context.Context, id uint, userID uint) (*models.Question, error)
-	Clones(ctx context.Context, userID uint, questionClonesID uint) error
-	Create(ctx context.Context, req *serializers.CreateQuestionReq) (*models.Question, error)
-	Update(ctx context.Context, id uint, req *serializers.UpdateQuestionReq) (*models.Question, error)
-	Delete(ctx context.Context, id uint, userID uint) (*models.Question, error)
-}
-
 type QuestionService struct {
-	repo repositories.IQuestionRepository
+	repo interfaces.IQuestionRepository
 }
 
-func NewQuestionService(repo repositories.IQuestionRepository) *QuestionService {
+func NewQuestionService(repo interfaces.IQuestionRepository) interfaces.IQuestionService {
 	return &QuestionService{repo: repo}
 }
 
@@ -73,7 +64,7 @@ func (p *QuestionService) Clones(ctx context.Context, userID uint, questionClone
 func (p *QuestionService) Update(ctx context.Context, id uint, req *serializers.UpdateQuestionReq) (*models.Question, error) {
 	question, err := p.repo.GetByID(ctx, id, req.UserID)
 	if err != nil {
-		logger.Errorf("Update.GetUserByID fail, id: %s, error: %s", id, err)
+		logger.Errorf("Update.GetByID fail, id: %s, error: %s", id, err)
 		return nil, err
 	}
 
@@ -90,7 +81,7 @@ func (p *QuestionService) Update(ctx context.Context, id uint, req *serializers.
 func (p *QuestionService) Delete(ctx context.Context, id uint, userID uint) (*models.Question, error) {
 	question, err := p.repo.GetByID(ctx, id, userID)
 	if err != nil {
-		logger.Errorf("Delete.GetUserByID fail, id: %s, error: %s", id, err)
+		logger.Errorf("Delete.GetByID fail, id: %s, error: %s", id, err)
 		return nil, err
 	}
 

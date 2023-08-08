@@ -5,27 +5,18 @@ import (
 
 	"quiztest/pkg/logger"
 
+	"quiztest/app/interfaces"
 	"quiztest/app/models"
-	"quiztest/app/repositories"
 	"quiztest/app/serializers"
 	"quiztest/pkg/paging"
 	"quiztest/pkg/utils"
 )
 
-type ICategoryService interface {
-	GetPaging(c context.Context, req *serializers.GetPagingCategoryReq) ([]*models.Category, *paging.Pagination, error)
-	GetAll(c context.Context, userID uint) ([]*models.Category, error)
-	GetByID(ctx context.Context, id uint, userID uint) (*models.Category, error)
-	Create(ctx context.Context, req *serializers.CreateCategoryReq) (*models.Category, error)
-	Update(ctx context.Context, id uint, req *serializers.UpdateCategoryReq) (*models.Category, error)
-	Delete(ctx context.Context, id uint, userID uint) (*models.Category, error)
-}
-
 type CategoryService struct {
-	repo repositories.ICategoryRepository
+	repo interfaces.ICategoryRepository
 }
 
-func NewCategoryService(repo repositories.ICategoryRepository) *CategoryService {
+func NewCategoryService(repo interfaces.ICategoryRepository) interfaces.ICategoryService {
 	return &CategoryService{repo: repo}
 }
 
@@ -73,7 +64,7 @@ func (p *CategoryService) GetAll(ctx context.Context, userID uint) ([]*models.Ca
 func (p *CategoryService) Update(ctx context.Context, id uint, req *serializers.UpdateCategoryReq) (*models.Category, error) {
 	category, err := p.repo.GetByID(ctx, id, req.UserID)
 	if err != nil {
-		logger.Errorf("Update.GetUserByID fail, id: %s, error: %s", id, err)
+		logger.Errorf("Update.GetByID fail, id: %s, error: %s", id, err)
 		return nil, err
 	}
 
@@ -90,7 +81,7 @@ func (p *CategoryService) Update(ctx context.Context, id uint, req *serializers.
 func (p *CategoryService) Delete(ctx context.Context, id uint, userID uint) (*models.Category, error) {
 	category, err := p.repo.GetByID(ctx, id, userID)
 	if err != nil {
-		logger.Errorf("Delete.GetUserByID fail, id: %s, error: %s", id, err)
+		logger.Errorf("Delete.GetByID fail, id: %s, error: %s", id, err)
 		return nil, err
 	}
 

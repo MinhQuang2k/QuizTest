@@ -4,27 +4,23 @@ import (
 	"quiztest/pkg/errors"
 	gohttp "quiztest/pkg/http"
 	"quiztest/pkg/logger"
-	"quiztest/pkg/validation"
 
 	"github.com/gin-gonic/gin"
 
+	"quiztest/app/interfaces"
 	"quiztest/app/serializers"
-	"quiztest/app/services"
 	"quiztest/pkg/utils"
 )
 
 type ExamAPI struct {
-	validator validation.Validation
-	service   services.IExamService
+	service interfaces.IExamService
 }
 
 func NewExamAPI(
-	validator validation.Validation,
-	service services.IExamService,
+	service interfaces.IExamService,
 ) *ExamAPI {
 	return &ExamAPI{
-		validator: validator,
-		service:   service,
+		service: service,
 	}
 }
 

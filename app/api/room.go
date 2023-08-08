@@ -4,27 +4,23 @@ import (
 	"quiztest/pkg/errors"
 	gohttp "quiztest/pkg/http"
 	"quiztest/pkg/logger"
-	"quiztest/pkg/validation"
 
 	"github.com/gin-gonic/gin"
 
+	"quiztest/app/interfaces"
 	"quiztest/app/serializers"
-	"quiztest/app/services"
 	"quiztest/pkg/utils"
 )
 
 type RoomAPI struct {
-	validator validation.Validation
-	service   services.IRoomService
+	service interfaces.IRoomService
 }
 
 func NewRoomAPI(
-	validator validation.Validation,
-	service services.IRoomService,
+	service interfaces.IRoomService,
 ) *RoomAPI {
 	return &RoomAPI{
-		validator: validator,
-		service:   service,
+		service: service,
 	}
 }
 
@@ -138,12 +134,7 @@ func (p *RoomAPI) GetCodeRoom(c *gin.Context) gohttp.Response {
 	var listCode []string
 
 	for i := 0; i < req.Limit; i++ {
-		code, err := utils.GenerateRandomString(3)
-		if err != nil {
-			return gohttp.Response{
-				Error: errors.Error.New(),
-			}
-		}
+		code := utils.GenerateCode("")
 		listCode = append(listCode, code)
 	}
 

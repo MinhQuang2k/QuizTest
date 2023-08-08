@@ -6,31 +6,19 @@ import (
 	"quiztest/pkg/errors"
 	"quiztest/pkg/logger"
 
+	"quiztest/app/interfaces"
 	"quiztest/app/models"
-	"quiztest/app/repositories"
 	"quiztest/app/serializers"
 	"quiztest/pkg/paging"
 	"quiztest/pkg/utils"
 )
 
-type IExamService interface {
-	GetPaging(c context.Context, req *serializers.GetPagingExamReq) ([]*models.Exam, *paging.Pagination, error)
-	GetAll(c context.Context, userID uint) ([]*models.Exam, error)
-	GetByID(ctx context.Context, id uint, userID uint) (*models.Exam, []*models.Question, error)
-	Create(ctx context.Context, req *serializers.CreateExamReq) (*models.Exam, error)
-	Update(ctx context.Context, id uint, req *serializers.UpdateExamReq) (*models.Exam, error)
-	AddQuestion(ctx context.Context, id, question_id, userID uint) (*models.Exam, error)
-	Delete(ctx context.Context, id uint, userID uint) (*models.Exam, error)
-	DeleteQuestion(ctx context.Context, id, question_id, userID uint) error
-	MoveQuestion(ctx context.Context, req *serializers.MoveExamReq) error
-}
-
 type ExamService struct {
-	repo         repositories.IExamRepository
-	repoQuestion repositories.IQuestionRepository
+	repo         interfaces.IExamRepository
+	repoQuestion interfaces.IQuestionRepository
 }
 
-func NewExamService(repo repositories.IExamRepository, repoQuestion repositories.IQuestionRepository) *ExamService {
+func NewExamService(repo interfaces.IExamRepository, repoQuestion interfaces.IQuestionRepository) interfaces.IExamService {
 	return &ExamService{repo: repo, repoQuestion: repoQuestion}
 }
 
@@ -82,7 +70,7 @@ func (p *ExamService) Create(ctx context.Context, req *serializers.CreateExamReq
 func (p *ExamService) Update(ctx context.Context, id uint, req *serializers.UpdateExamReq) (*models.Exam, error) {
 	exam, err := p.repo.GetByID(ctx, id, req.UserID)
 	if err != nil {
-		logger.Errorf("Update.GetUserByID fail, id: %s, error: %s", id, err)
+		logger.Errorf("Update.GetByID fail, id: %s, error: %s", id, err)
 		return nil, err
 	}
 
@@ -99,7 +87,7 @@ func (p *ExamService) Update(ctx context.Context, id uint, req *serializers.Upda
 func (p *ExamService) Delete(ctx context.Context, id uint, userID uint) (*models.Exam, error) {
 	exam, err := p.repo.GetByID(ctx, id, userID)
 	if err != nil {
-		logger.Errorf("Delete.GetUserByID fail, id: %s, error: %s", id, err)
+		logger.Errorf("Delete.GetByID fail, id: %s, error: %s", id, err)
 		return nil, err
 	}
 

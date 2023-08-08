@@ -3,9 +3,7 @@ package repositories
 import (
 	"context"
 
-	"gorm.io/gorm"
-
-	"quiztest/app/dbs"
+	"quiztest/app/interfaces"
 	"quiztest/app/models"
 	"quiztest/app/serializers"
 	"quiztest/config"
@@ -13,24 +11,12 @@ import (
 	"quiztest/pkg/paging"
 )
 
-type IExamRepository interface {
-	Create(ctx context.Context, exam *models.Exam, userID uint) error
-	Update(ctx context.Context, exam *models.Exam) error
-	UpdateExamQuestion(ctx context.Context, examQuestion *models.ExamQuestion) error
-	GetPaging(ctx context.Context, req *serializers.GetPagingExamReq) ([]*models.Exam, *paging.Pagination, error)
-	GetByID(ctx context.Context, id uint, userID uint) (*models.Exam, error)
-	GetExamQuestionByID(ctx context.Context, examID uint, questionID uint) (*models.ExamQuestion, error)
-	GetAll(ctx context.Context, userID uint) ([]*models.Exam, error)
-	Delete(ctx context.Context, exam *models.Exam) error
-	DeleteExamQuestion(ctx context.Context, examQuestion *models.ExamQuestion) error
-}
-
 type ExamRepo struct {
-	db *gorm.DB
+	db interfaces.IDatabase
 }
 
-func NewExamRepository() *ExamRepo {
-	return &ExamRepo{db: dbs.Database}
+func NewExamRepository(db interfaces.IDatabase) interfaces.IExamRepository {
+	return &ExamRepo{db: db}
 }
 
 func (r *ExamRepo) GetPaging(ctx context.Context, req *serializers.GetPagingExamReq) ([]*models.Exam, *paging.Pagination, error) {
@@ -39,7 +25,7 @@ func (r *ExamRepo) GetPaging(ctx context.Context, req *serializers.GetPagingExam
 	var total int64
 	var exams []*models.Exam
 
-	query := r.db.Preload("Rooms").
+	query := r.db.GetInstance().Preload("Rooms").
 		Joins("JOIN subjects ON subjects.id = exams.subject_id").
 		Joins("JOIN categories ON categories.id = subjects.category_id").
 		Where("categories.user_id = ?", req.UserID)
@@ -80,7 +66,7 @@ func (r *ExamRepo) GetAll(ctx context.Context, userID uint) ([]*models.Exam, err
 	defer cancel()
 
 	var exams []*models.Exam
-	if err := r.db.
+	if err := r.db.GetInstance().
 		Joins("JOIN subjects ON subjects.id = exams.subject_id").
 		Joins("JOIN categories ON categories.id = subjects.category_id").
 		Where("categories.user_id = ?", userID).Find(&exams).Error; err != nil {
@@ -95,7 +81,7 @@ func (r *ExamRepo) GetByID(ctx context.Context, id uint, userID uint) (*models.E
 	defer cancel()
 
 	var exam models.Exam
-	if err := r.db.Preload("Rooms").
+	if err := r.db.GetInstance().Preload("Rooms").
 		Joins("JOIN subjects ON subjects.id = exams.subject_id").
 		Joins("JOIN categories ON categories.id = subjects.category_id").
 		Where("categories.user_id = ?", userID).
@@ -111,7 +97,7 @@ func (r *ExamRepo) Create(ctx context.Context, exam *models.Exam, userID uint) e
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 
-	if err := r.db.Create(&exam).Error; err != nil {
+	if err := r.db.GetInstance().Create(&exam).Error; err != nil {
 		return errors.ErrorDatabaseCreate.Newm(err.Error())
 	}
 
@@ -122,7 +108,7 @@ func (r *ExamRepo) Update(ctx context.Context, exam *models.Exam) error {
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 
-	if err := r.db.Save(&exam).Error; err != nil {
+	if err := r.db.GetInstance().Save(&exam).Error; err != nil {
 		return errors.ErrorDatabaseUpdate.Newm(err.Error())
 	}
 
@@ -133,7 +119,7 @@ func (r *ExamRepo) UpdateExamQuestion(ctx context.Context, examQuestion *models.
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 
-	if err := r.db.Save(&examQuestion).Error; err != nil {
+	if err := r.db.GetInstance().Save(&examQuestion).Error; err != nil {
 		return errors.ErrorDatabaseUpdate.Newm(err.Error())
 	}
 
@@ -143,7 +129,7 @@ func (r *ExamRepo) UpdateExamQuestion(ctx context.Context, examQuestion *models.
 func (r *ExamRepo) Delete(ctx context.Context, exam *models.Exam) error {
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
-	rowsAffected := r.db.Delete(&exam).RowsAffected
+	rowsAffected := r.db.GetInstance().Delete(&exam).RowsAffected
 
 	if rowsAffected == 0 {
 		return errors.ErrorNotFound.New()
@@ -157,7 +143,7 @@ func (r *ExamRepo) GetExamQuestionByID(ctx context.Context, examID uint, questio
 	defer cancel()
 
 	var examQuestion models.ExamQuestion
-	if err := r.db.Where("exam_id = ?", examID).Where("question_id = ?", questionID).First(&examQuestion).Error; err != nil {
+	if err := r.db.GetInstance().Where("exam_id = ?", examID).Where("question_id = ?", questionID).First(&examQuestion).Error; err != nil {
 		return nil, errors.ErrorDatabaseGet.Newm(err.Error())
 	}
 
@@ -167,7 +153,7 @@ func (r *ExamRepo) GetExamQuestionByID(ctx context.Context, examID uint, questio
 func (r *ExamRepo) DeleteExamQuestion(ctx context.Context, examQuestion *models.ExamQuestion) error {
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
-	rowsAffected := r.db.Delete(&examQuestion).RowsAffected
+	rowsAffected := r.db.GetInstance().Delete(&examQuestion).RowsAffected
 
 	if rowsAffected == 0 {
 		return errors.ErrorNotFound.New()

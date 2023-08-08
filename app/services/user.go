@@ -8,33 +8,25 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
+	"quiztest/app/interfaces"
 	"quiztest/app/models"
-	"quiztest/app/repositories"
 	"quiztest/app/serializers"
 	"quiztest/pkg/jtoken"
 	"quiztest/pkg/utils"
 )
 
-type IUserService interface {
-	Login(ctx context.Context, req *serializers.LoginReq) (*models.User, string, string, error)
-	Register(ctx context.Context, req *serializers.RegisterReq) (*models.User, error)
-	GetUserByID(ctx context.Context, id uint) (*models.User, error)
-	RefreshToken(ctx context.Context, userID uint) (string, error)
-	ChangePassword(ctx context.Context, id uint, req *serializers.ChangePasswordReq) error
-}
-
 type UserService struct {
-	repo repositories.IUserRepository
+	repo interfaces.IUserRepository
 }
 
-func NewUserService(repo repositories.IUserRepository) *UserService {
+func NewUserService(repo interfaces.IUserRepository) interfaces.IUserService {
 	return &UserService{repo: repo}
 }
 
 func (u *UserService) Login(ctx context.Context, req *serializers.LoginReq) (*models.User, string, string, error) {
-	user, err := u.repo.GetUserByEmail(ctx, req.Email)
+	user, err := u.repo.GetByEmail(ctx, req.Email)
 	if err != nil {
-		logger.Errorf("Login.GetUserByEmail fail, email: %s, error: %s", req.Email, err)
+		logger.Errorf("Login.GetByEmail fail, email: %s, error: %s", req.Email, err)
 		return nil, "", "", err
 	}
 
@@ -64,10 +56,10 @@ func (u *UserService) Register(ctx context.Context, req *serializers.RegisterReq
 	return &user, nil
 }
 
-func (u *UserService) GetUserByID(ctx context.Context, id uint) (*models.User, error) {
-	user, err := u.repo.GetUserByID(ctx, id)
+func (u *UserService) GetByID(ctx context.Context, id uint) (*models.User, error) {
+	user, err := u.repo.GetByID(ctx, id)
 	if err != nil {
-		logger.Errorf("GetUserByID fail, id: %s, error: %s", id, err)
+		logger.Errorf("GetByID fail, id: %s, error: %s", id, err)
 		return nil, err
 	}
 
@@ -75,9 +67,9 @@ func (u *UserService) GetUserByID(ctx context.Context, id uint) (*models.User, e
 }
 
 func (u *UserService) RefreshToken(ctx context.Context, userID uint) (string, error) {
-	user, err := u.repo.GetUserByID(ctx, userID)
+	user, err := u.repo.GetByID(ctx, userID)
 	if err != nil {
-		logger.Errorf("RefreshToken.GetUserByID fail, id: %s, error: %s", userID, err)
+		logger.Errorf("RefreshToken.GetByID fail, id: %s, error: %s", userID, err)
 		return "", err
 	}
 
@@ -91,9 +83,9 @@ func (u *UserService) RefreshToken(ctx context.Context, userID uint) (string, er
 }
 
 func (u *UserService) ChangePassword(ctx context.Context, id uint, req *serializers.ChangePasswordReq) error {
-	user, err := u.repo.GetUserByID(ctx, id)
+	user, err := u.repo.GetByID(ctx, id)
 	if err != nil {
-		logger.Errorf("ChangePassword.GetUserByID fail, id: %s, error: %s", id, err)
+		logger.Errorf("ChangePassword.GetByID fail, id: %s, error: %s", id, err)
 		return err
 	}
 

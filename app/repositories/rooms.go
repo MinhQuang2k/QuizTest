@@ -3,9 +3,7 @@ package repositories
 import (
 	"context"
 
-	"gorm.io/gorm"
-
-	"quiztest/app/dbs"
+	"quiztest/app/interfaces"
 	"quiztest/app/models"
 	"quiztest/app/serializers"
 	"quiztest/config"
@@ -13,27 +11,19 @@ import (
 	"quiztest/pkg/paging"
 )
 
-type IRoomRepository interface {
-	Create(ctx context.Context, room *models.Room) error
-	Update(ctx context.Context, room *models.Room) error
-	GetPaging(ctx context.Context, req *serializers.GetPagingRoomReq) ([]*models.Room, *paging.Pagination, error)
-	GetByID(ctx context.Context, id uint, userID uint) (*models.Room, error)
-	Delete(ctx context.Context, room *models.Room) error
-}
-
 type RoomRepo struct {
-	db *gorm.DB
+	db interfaces.IDatabase
 }
 
-func NewRoomRepository() *RoomRepo {
-	return &RoomRepo{db: dbs.Database}
+func NewRoomRepository(db interfaces.IDatabase) interfaces.IRoomRepository {
+	return &RoomRepo{db: db}
 }
 
 func (r *RoomRepo) GetPaging(ctx context.Context, req *serializers.GetPagingRoomReq) ([]*models.Room, *paging.Pagination, error) {
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 	var total int64
-	query := r.db.
+	query := r.db.GetInstance().
 		Joins("JOIN exams ON exams.id = rooms.exam_id").
 		Joins("JOIN subjects ON subjects.id = exams.subject_id").
 		Joins("JOIN categories ON categories.id = subjects.category_id").
@@ -73,7 +63,7 @@ func (r *RoomRepo) GetByID(ctx context.Context, id uint, userID uint) (*models.R
 	defer cancel()
 
 	var room models.Room
-	if err := r.db.Joins("JOIN exams ON exams.id = rooms.exam_id").
+	if err := r.db.GetInstance().Joins("JOIN exams ON exams.id = rooms.exam_id").
 		Joins("JOIN subjects ON subjects.id = exams.subject_id").
 		Joins("JOIN categories ON categories.id = subjects.category_id").
 		Where("categories.user_id = ?", userID).
@@ -88,7 +78,7 @@ func (r *RoomRepo) Create(ctx context.Context, room *models.Room) error {
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 
-	if err := r.db.Create(&room).Error; err != nil {
+	if err := r.db.GetInstance().Create(&room).Error; err != nil {
 		return errors.ErrorDatabaseCreate.Newm(err.Error())
 	}
 
@@ -99,7 +89,7 @@ func (r *RoomRepo) Update(ctx context.Context, room *models.Room) error {
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 
-	if err := r.db.Save(&room).Error; err != nil {
+	if err := r.db.GetInstance().Save(&room).Error; err != nil {
 		return errors.ErrorDatabaseUpdate.Newm(err.Error())
 	}
 
@@ -109,7 +99,7 @@ func (r *RoomRepo) Update(ctx context.Context, room *models.Room) error {
 func (r *RoomRepo) Delete(ctx context.Context, room *models.Room) error {
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
-	rowsAffected := r.db.Delete(&room).RowsAffected
+	rowsAffected := r.db.GetInstance().Delete(&room).RowsAffected
 
 	if rowsAffected == 0 {
 		return errors.ErrorNotFound.New()

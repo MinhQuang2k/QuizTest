@@ -3,26 +3,23 @@ package api
 import (
 	"quiztest/pkg/errors"
 	"quiztest/pkg/logger"
-	"quiztest/pkg/validation"
 
 	"github.com/gin-gonic/gin"
 
+	"quiztest/app/interfaces"
 	"quiztest/app/serializers"
-	"quiztest/app/services"
 	"quiztest/pkg/utils"
 
 	gohttp "quiztest/pkg/http"
 )
 
 type UserAPI struct {
-	validator validation.Validation
-	service   services.IUserService
+	service interfaces.IUserService
 }
 
-func NewUserAPI(validator validation.Validation, service services.IUserService) *UserAPI {
+func NewUserAPI(service interfaces.IUserService) *UserAPI {
 	return &UserAPI{
-		validator: validator,
-		service:   service,
+		service: service,
 	}
 }
 
@@ -80,7 +77,7 @@ func (u *UserAPI) Register(c *gin.Context) gohttp.Response {
 
 func (u *UserAPI) GetMe(c *gin.Context) gohttp.Response {
 	userID := c.MustGet("userId").(uint)
-	user, err := u.service.GetUserByID(c, userID)
+	user, err := u.service.GetByID(c, userID)
 	if err != nil {
 		logger.Error(err.Error())
 		return gohttp.Response{

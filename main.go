@@ -9,50 +9,26 @@ import (
 	"syscall"
 	"time"
 
+	"quiztest/app/migration"
 	"quiztest/pkg/logger"
-	"quiztest/pkg/validation"
 
 	"quiztest/app"
-	"quiztest/app/api"
-	"quiztest/app/dbs"
-	"quiztest/app/repositories"
-	"quiztest/app/services"
 	"quiztest/config"
+
+	_ "quiztest/docs"
 )
 
 func main() {
 	cfg := config.GetConfig()
 	logger.Initialize(cfg.Environment)
 
-	dbs.Init()
+	container := app.BuildContainer()
+	engine := app.InitGinEngine(container)
 
-	validator := validation.New()
-
-	userRepo := repositories.NewUserRepository()
-	groupQuestionRepo := repositories.NewGroupQuestionRepository()
-	subjectRepo := repositories.NewSubjectRepository()
-	categoryRepo := repositories.NewCategoryRepository()
-	questionRepo := repositories.NewQuestionRepository()
-	examRepo := repositories.NewExamRepository()
-	roomRepo := repositories.NewRoomRepository()
-
-	userSvc := services.NewUserService(userRepo)
-	groupQuestionSvc := services.NewGroupQuestionService(groupQuestionRepo)
-	subjectSvc := services.NewSubjectService(subjectRepo)
-	categorySvc := services.NewCategoryService(categoryRepo)
-	questionSvc := services.NewQuestionService(questionRepo)
-	examSvc := services.NewExamService(examRepo, questionRepo)
-	roomSvc := services.NewRoomService(roomRepo)
-
-	userAPI := api.NewUserAPI(validator, userSvc)
-	groupQuestionAPI := api.NewGroupQuestionAPI(validator, groupQuestionSvc)
-	subjectAPI := api.NewSubjectAPI(validator, subjectSvc)
-	categoryAPI := api.NewCategoryAPI(validator, categorySvc)
-	questionAPI := api.NewQuestionAPI(validator, questionSvc)
-	examAPI := api.NewExamAPI(validator, examSvc)
-	roomAPI := api.NewRoomAPI(validator, roomSvc)
-
-	engine := app.InitGinEngine(userAPI, groupQuestionAPI, categoryAPI, subjectAPI, questionAPI, examAPI, roomAPI)
+	err := migration.Migrate(container)
+	if err != nil {
+		logger.Warn("Failed to migrate data: ", err)
+	}
 
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%d", cfg.Port),

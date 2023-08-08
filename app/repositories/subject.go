@@ -3,40 +3,30 @@ package repositories
 import (
 	"context"
 
-	"gorm.io/gorm"
-
-	"quiztest/app/dbs"
+	"quiztest/app/interfaces"
 	"quiztest/app/models"
 	"quiztest/app/serializers"
 	"quiztest/config"
 	"quiztest/pkg/errors"
 )
 
-type ISubjectRepository interface {
-	Create(ctx context.Context, subject *models.Subject) error
-	Update(ctx context.Context, subject *models.Subject) error
-	Move(ctx context.Context, req *serializers.MoveSubjectReq, subject *models.Subject) error
-	Delete(ctx context.Context, subject *models.Subject) error
-	GetByID(ctx context.Context, id uint, categoryID uint) (*models.Subject, error)
-}
-
 type SubjectRepo struct {
-	db *gorm.DB
+	db interfaces.IDatabase
 }
 
-func NewSubjectRepository() *SubjectRepo {
-	return &SubjectRepo{db: dbs.Database}
+func NewSubjectRepository(db interfaces.IDatabase) interfaces.ISubjectRepository {
+	return &SubjectRepo{db: db}
 }
 
 func (r *SubjectRepo) Create(ctx context.Context, subject *models.Subject) error {
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 
-	if err := r.db.Where("name = ?", subject.Name).Where("category_id = ?", subject.CategoryID).First(&subject).Error; err == nil {
+	if err := r.db.GetInstance().Where("name = ?", subject.Name).Where("category_id = ?", subject.CategoryID).First(&subject).Error; err == nil {
 		return errors.ErrorExistName.New()
 	}
 
-	if err := r.db.Create(&subject).Error; err != nil {
+	if err := r.db.GetInstance().Create(&subject).Error; err != nil {
 		return errors.ErrorDatabaseCreate.Newm(err.Error())
 	}
 
@@ -47,11 +37,11 @@ func (r *SubjectRepo) Update(ctx context.Context, subject *models.Subject) error
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 
-	if err := r.db.Where("name = ?", subject.Name).Where("category_id = ?", subject.CategoryID).First(&subject).Error; err == nil {
+	if err := r.db.GetInstance().Where("name = ?", subject.Name).Where("category_id = ?", subject.CategoryID).First(&subject).Error; err == nil {
 		return errors.ErrorExistName.New()
 	}
 
-	if err := r.db.Save(&subject).Error; err != nil {
+	if err := r.db.GetInstance().Save(&subject).Error; err != nil {
 		return errors.ErrorDatabaseUpdate.Newm(err.Error())
 	}
 
@@ -61,7 +51,7 @@ func (r *SubjectRepo) Move(ctx context.Context, req *serializers.MoveSubjectReq,
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 	var newSubject models.Subject
-	if err := r.db.Where("category_id = ?", req.NewCategoryID).
+	if err := r.db.GetInstance().Where("category_id = ?", req.NewCategoryID).
 		Where("name = ?", subject.Name).
 		First(&newSubject).Error; err == nil {
 		return errors.ErrorExistName.New()
@@ -69,7 +59,7 @@ func (r *SubjectRepo) Move(ctx context.Context, req *serializers.MoveSubjectReq,
 
 	subject.CategoryID = req.NewCategoryID
 
-	if err := r.db.Save(&subject).Error; err != nil {
+	if err := r.db.GetInstance().Save(&subject).Error; err != nil {
 		return errors.ErrorDatabaseUpdate.Newm(err.Error())
 	}
 
@@ -79,7 +69,7 @@ func (r *SubjectRepo) Move(ctx context.Context, req *serializers.MoveSubjectReq,
 func (r *SubjectRepo) Delete(ctx context.Context, subject *models.Subject) error {
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
-	rowsAffected := r.db.Delete(&subject).RowsAffected
+	rowsAffected := r.db.GetInstance().Delete(&subject).RowsAffected
 
 	if rowsAffected == 0 {
 		return errors.ErrorNotFound.New()
@@ -93,7 +83,7 @@ func (r *SubjectRepo) GetAll(ctx context.Context, categoryID uint) ([]*models.Su
 	defer cancel()
 
 	var subjects []*models.Subject
-	if err := r.db.Where("categoryID = ?", categoryID).Find(&subjects).Error; err != nil {
+	if err := r.db.GetInstance().Where("categoryID = ?", categoryID).Find(&subjects).Error; err != nil {
 		return nil, errors.ErrorDatabaseGet.Newm(err.Error())
 	}
 
@@ -105,7 +95,7 @@ func (r *SubjectRepo) GetByID(ctx context.Context, id uint, categoryID uint) (*m
 	defer cancel()
 
 	var subject models.Subject
-	if err := r.db.Where("id = ?", id).Where("category_id = ?", categoryID).First(&subject).Error; err != nil {
+	if err := r.db.GetInstance().Where("id = ?", id).Where("category_id = ?", categoryID).First(&subject).Error; err != nil {
 		return nil, errors.ErrorNotFound.Newm(err.Error())
 	}
 

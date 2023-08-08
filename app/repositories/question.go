@@ -3,9 +3,7 @@ package repositories
 import (
 	"context"
 
-	"gorm.io/gorm"
-
-	"quiztest/app/dbs"
+	"quiztest/app/interfaces"
 	"quiztest/app/models"
 	"quiztest/app/serializers"
 	"quiztest/config"
@@ -14,22 +12,12 @@ import (
 	"quiztest/pkg/utils"
 )
 
-type IQuestionRepository interface {
-	Create(ctx context.Context, question *models.Question) error
-	Clones(ctx context.Context, userID uint, questionClonesID uint) error
-	Update(ctx context.Context, question *models.Question, userID uint) error
-	GetPaging(ctx context.Context, req *serializers.GetPagingQuestionReq) ([]*models.Question, *paging.Pagination, error)
-	GetByID(ctx context.Context, id uint, userID uint) (*models.Question, error)
-	GetByExamID(ctx context.Context, id uint) ([]*models.Question, error)
-	Delete(ctx context.Context, question *models.Question) error
-}
-
 type QuestionRepo struct {
-	db *gorm.DB
+	db interfaces.IDatabase
 }
 
-func NewQuestionRepository() *QuestionRepo {
-	return &QuestionRepo{db: dbs.Database}
+func NewQuestionRepository(db interfaces.IDatabase) interfaces.IQuestionRepository {
+	return &QuestionRepo{db: db}
 }
 
 func (r *QuestionRepo) GetPaging(ctx context.Context, req *serializers.GetPagingQuestionReq) ([]*models.Question, *paging.Pagination, error) {
@@ -37,7 +25,7 @@ func (r *QuestionRepo) GetPaging(ctx context.Context, req *serializers.GetPaging
 	defer cancel()
 	var total int64
 	var questions []*models.Question
-	query := r.db.
+	query := r.db.GetInstance().
 		Joins("JOIN group_questions ON group_questions.id = questions.group_question_id").
 		Where("group_questions.user_id = ?", req.UserID)
 
@@ -75,7 +63,7 @@ func (r *QuestionRepo) GetByID(ctx context.Context, id uint, userID uint) (*mode
 	defer cancel()
 
 	var question models.Question
-	if err := r.db.
+	if err := r.db.GetInstance().
 		Joins("JOIN group_questions ON group_questions.id = questions.group_question_id").
 		Where("questions.id = ?", id).
 		Where("questions.deleted_at IS NULL").
@@ -92,7 +80,7 @@ func (r *QuestionRepo) GetByExamID(ctx context.Context, examID uint) ([]*models.
 	defer cancel()
 
 	var questions []*models.Question
-	if err := r.db.
+	if err := r.db.GetInstance().
 		Joins("JOIN exam_questions ON exam_questions.question_id = questions.id").
 		Where("exam_questions.exam_id = ?", examID).
 		Where("exam_questions.deleted_at IS NULL").
@@ -107,7 +95,7 @@ func (r *QuestionRepo) Create(ctx context.Context, question *models.Question) er
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 
-	if err := r.db.Create(&question).Error; err != nil {
+	if err := r.db.GetInstance().Create(&question).Error; err != nil {
 		return errors.ErrorDatabaseCreate.Newm(err.Error())
 	}
 
@@ -119,7 +107,7 @@ func (r *QuestionRepo) Clones(ctx context.Context, userID uint, questionClonesID
 	defer cancel()
 
 	var question models.Question
-	if err := r.db.Where("id = ?", questionClonesID).First(&question).Error; err != nil {
+	if err := r.db.GetInstance().Where("id = ?", questionClonesID).First(&question).Error; err != nil {
 		return errors.ErrorDatabaseGet.Newm(err.Error())
 	}
 	var questionClones serializers.QuestionClones
@@ -129,7 +117,7 @@ func (r *QuestionRepo) Clones(ctx context.Context, userID uint, questionClonesID
 
 	var questionNew models.Question
 	utils.Copy(&questionNew, &questionClones)
-	if err := r.db.Create(&questionNew).Error; err != nil {
+	if err := r.db.GetInstance().Create(&questionNew).Error; err != nil {
 		return errors.ErrorDatabaseCreate.Newm(err.Error())
 	}
 
@@ -140,7 +128,7 @@ func (r *QuestionRepo) Update(ctx context.Context, question *models.Question, us
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 
-	if err := r.db.Save(&question).Error; err != nil {
+	if err := r.db.GetInstance().Save(&question).Error; err != nil {
 		return errors.ErrorDatabaseUpdate.Newm(err.Error())
 	}
 
@@ -150,7 +138,7 @@ func (r *QuestionRepo) Update(ctx context.Context, question *models.Question, us
 func (r *QuestionRepo) Delete(ctx context.Context, question *models.Question) error {
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
-	rowsAffected := r.db.Delete(&question).RowsAffected
+	rowsAffected := r.db.GetInstance().Delete(&question).RowsAffected
 
 	if rowsAffected == 0 {
 		return errors.ErrorNotFound.New()

@@ -5,27 +5,18 @@ import (
 
 	"quiztest/pkg/logger"
 
+	"quiztest/app/interfaces"
 	"quiztest/app/models"
-	"quiztest/app/repositories"
 	"quiztest/app/serializers"
 	"quiztest/pkg/paging"
 	"quiztest/pkg/utils"
 )
 
-type IGroupQuestionService interface {
-	GetPaging(c context.Context, req *serializers.GetPagingGroupQuestionReq) ([]*models.GroupQuestion, *paging.Pagination, error)
-	GetAll(c context.Context, userID uint) ([]*models.GroupQuestion, error)
-	GetByID(ctx context.Context, id uint, userID uint) (*models.GroupQuestion, error)
-	Create(ctx context.Context, req *serializers.CreateGroupQuestionReq) (*models.GroupQuestion, error)
-	Update(ctx context.Context, id uint, req *serializers.UpdateGroupQuestionReq) (*models.GroupQuestion, error)
-	Delete(ctx context.Context, id uint, userID uint) (*models.GroupQuestion, error)
-}
-
 type GroupQuestionService struct {
-	repo repositories.IGroupQuestionRepository
+	repo interfaces.IGroupQuestionRepository
 }
 
-func NewGroupQuestionService(repo repositories.IGroupQuestionRepository) *GroupQuestionService {
+func NewGroupQuestionService(repo interfaces.IGroupQuestionRepository) interfaces.IGroupQuestionService {
 	return &GroupQuestionService{repo: repo}
 }
 
@@ -71,7 +62,7 @@ func (p *GroupQuestionService) Create(ctx context.Context, req *serializers.Crea
 func (p *GroupQuestionService) Update(ctx context.Context, id uint, req *serializers.UpdateGroupQuestionReq) (*models.GroupQuestion, error) {
 	groupQuestion, err := p.repo.GetByID(ctx, id, req.UserID)
 	if err != nil {
-		logger.Errorf("Update.GetUserByID fail, id: %s, error: %s", id, err)
+		logger.Errorf("Update.GetByID fail, id: %s, error: %s", id, err)
 		return nil, err
 	}
 
@@ -88,7 +79,7 @@ func (p *GroupQuestionService) Update(ctx context.Context, id uint, req *seriali
 func (p *GroupQuestionService) Delete(ctx context.Context, id uint, userID uint) (*models.GroupQuestion, error) {
 	groupQuestion, err := p.repo.GetByID(ctx, id, userID)
 	if err != nil {
-		logger.Errorf("Delete.GetUserByID fail, id: %s, error: %s", id, err)
+		logger.Errorf("Delete.GetByID fail, id: %s, error: %s", id, err)
 		return nil, err
 	}
 

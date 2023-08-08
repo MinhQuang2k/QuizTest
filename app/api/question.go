@@ -4,27 +4,23 @@ import (
 	"quiztest/pkg/errors"
 	gohttp "quiztest/pkg/http"
 	"quiztest/pkg/logger"
-	"quiztest/pkg/validation"
 
 	"github.com/gin-gonic/gin"
 
+	"quiztest/app/interfaces"
 	"quiztest/app/serializers"
-	"quiztest/app/services"
 	"quiztest/pkg/utils"
 )
 
 type QuestionAPI struct {
-	validator validation.Validation
-	service   services.IQuestionService
+	service interfaces.IQuestionService
 }
 
 func NewQuestionAPI(
-	validator validation.Validation,
-	service services.IQuestionService,
+	service interfaces.IQuestionService,
 ) *QuestionAPI {
 	return &QuestionAPI{
-		validator: validator,
-		service:   service,
+		service: service,
 	}
 }
 

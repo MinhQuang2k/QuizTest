@@ -2,25 +2,60 @@ package app
 
 import (
 	"github.com/gin-gonic/gin"
+	"go.uber.org/dig"
 
 	"quiztest/app/api"
-	"quiztest/config"
+	"quiztest/app/dbs"
+	"quiztest/app/repositories"
+	"quiztest/app/router"
+	"quiztest/app/services"
+	"quiztest/pkg/logger"
 )
 
-func InitGinEngine(
-	userAPI *api.UserAPI,
-	groupQuestionAPI *api.GroupQuestionAPI,
-	categoryAPI *api.CategoryAPI,
-	subjectAPI *api.SubjectAPI,
-	questionAPI *api.QuestionAPI,
-	examAPI *api.ExamAPI,
-	roomAPI *api.RoomAPI,
-) *gin.Engine {
-	cfg := config.GetConfig()
-	if cfg.Environment == config.ProductionEnv {
-		gin.SetMode(gin.ReleaseMode)
+// BuildContainer build dig container
+func BuildContainer() *dig.Container {
+	container := dig.New()
+
+	// auth, err := InitAuth()
+	// _ = container.Provide(func() jwt.IJWTAuth {
+	// 	return auth
+	// })
+
+	// Inject database
+	err := dbs.Inject(container)
+	if err != nil {
+		logger.Error("Failed to inject database", err)
 	}
-	app := gin.Default()
-	api.RegisterAPI(app, userAPI, groupQuestionAPI, categoryAPI, subjectAPI, questionAPI, examAPI, roomAPI)
+
+	// Inject repositories
+	err = repositories.Inject(container)
+	if err != nil {
+		logger.Error("Failed to inject repositories", err)
+	}
+
+	// Inject services
+	err = services.Inject(container)
+	if err != nil {
+		logger.Error("Failed to inject services", err)
+	}
+
+	// Inject APIs
+	err = api.Inject(container)
+	if err != nil {
+		logger.Error("Failed to inject APIs", err)
+	}
+
+	return container
+}
+
+// InitGinEngine initial new gin engine
+func InitGinEngine(container *dig.Container) *gin.Engine {
+	app := gin.New()
+	router.Docs(app)
+	err := router.RegisterAPI(app, container)
+	if err != nil {
+		return nil
+	}
+
 	return app
 }

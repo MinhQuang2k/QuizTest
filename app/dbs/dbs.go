@@ -1,21 +1,23 @@
 package dbs
 
 import (
+	"quiztest/app/interfaces"
 	"quiztest/pkg/logger"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	gormLogger "gorm.io/gorm/logger"
 
-	"quiztest/app/models"
 	"quiztest/config"
 )
 
-var Database *gorm.DB
+type database struct {
+	db *gorm.DB
+}
 
-func Init() {
+func NewDatabase() interfaces.IDatabase {
 	cfg := config.GetConfig()
-	database, err := gorm.Open(mysql.Open(cfg.DatabaseURI), &gorm.Config{
+	db, err := gorm.Open(mysql.Open(cfg.DatabaseURI), &gorm.Config{
 		Logger: gormLogger.Default.LogMode(gormLogger.Warn),
 	})
 	if err != nil {
@@ -23,25 +25,19 @@ func Init() {
 	}
 
 	// Set up connection pool
-	sqlDB, err := database.DB()
+	sqlDB, err := db.DB()
 	if err != nil {
 		logger.Fatal("Cannot connect to database", err)
 	}
 	sqlDB.SetMaxIdleConns(20)
 	sqlDB.SetMaxOpenConns(200)
-	Database = database
 
-	Migrate()
+	return &database{
+		db: db,
+	}
 }
 
-func Migrate() {
-	User := models.User{}
-	Category := models.Category{}
-	ExamQuestion := models.ExamQuestion{}
-	Exam := models.Exam{}
-	GroupQuestion := models.GroupQuestion{}
-	Question := models.Question{}
-	Subject := models.Subject{}
-	Room := models.Room{}
-	Database.AutoMigrate(&User, &GroupQuestion, &Category, &Subject, &ExamQuestion, &Exam, &Question, &Room)
+// GetInstance get database instance
+func (d *database) GetInstance() *gorm.DB {
+	return d.db
 }

@@ -4,27 +4,23 @@ import (
 	"quiztest/pkg/errors"
 	gohttp "quiztest/pkg/http"
 	"quiztest/pkg/logger"
-	"quiztest/pkg/validation"
 
 	"github.com/gin-gonic/gin"
 
+	"quiztest/app/interfaces"
 	"quiztest/app/serializers"
-	"quiztest/app/services"
 	"quiztest/pkg/utils"
 )
 
 type CategoryAPI struct {
-	validator validation.Validation
-	service   services.ICategoryService
+	service interfaces.ICategoryService
 }
 
 func NewCategoryAPI(
-	validator validation.Validation,
-	service services.ICategoryService,
+	service interfaces.ICategoryService,
 ) *CategoryAPI {
 	return &CategoryAPI{
-		validator: validator,
-		service:   service,
+		service: service,
 	}
 }
 

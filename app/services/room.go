@@ -5,26 +5,18 @@ import (
 
 	"quiztest/pkg/logger"
 
+	"quiztest/app/interfaces"
 	"quiztest/app/models"
-	"quiztest/app/repositories"
 	"quiztest/app/serializers"
 	"quiztest/pkg/paging"
 	"quiztest/pkg/utils"
 )
 
-type IRoomService interface {
-	GetPaging(c context.Context, req *serializers.GetPagingRoomReq) ([]*models.Room, *paging.Pagination, error)
-	GetByID(ctx context.Context, id uint, userID uint) (*models.Room, error)
-	Create(ctx context.Context, req *serializers.CreateRoomReq) (*models.Room, error)
-	Update(ctx context.Context, id uint, req *serializers.UpdateRoomReq) (*models.Room, error)
-	Delete(ctx context.Context, id uint, userID uint) (*models.Room, error)
-}
-
 type RoomService struct {
-	repo repositories.IRoomRepository
+	repo interfaces.IRoomRepository
 }
 
-func NewRoomService(repo repositories.IRoomRepository) *RoomService {
+func NewRoomService(repo interfaces.IRoomRepository) interfaces.IRoomService {
 	return &RoomService{repo: repo}
 }
 
@@ -62,7 +54,7 @@ func (p *RoomService) Create(ctx context.Context, req *serializers.CreateRoomReq
 func (p *RoomService) Update(ctx context.Context, id uint, req *serializers.UpdateRoomReq) (*models.Room, error) {
 	room, err := p.repo.GetByID(ctx, id, req.UserID)
 	if err != nil {
-		logger.Errorf("Update.GetUserByID fail, id: %s, error: %s", id, err)
+		logger.Errorf("Update.GetByID fail, id: %s, error: %s", id, err)
 		return nil, err
 	}
 
@@ -79,7 +71,7 @@ func (p *RoomService) Update(ctx context.Context, id uint, req *serializers.Upda
 func (p *RoomService) Delete(ctx context.Context, id uint, userID uint) (*models.Room, error) {
 	room, err := p.repo.GetByID(ctx, id, userID)
 	if err != nil {
-		logger.Errorf("Delete.GetUserByID fail, id: %s, error: %s", id, err)
+		logger.Errorf("Delete.GetByID fail, id: %s, error: %s", id, err)
 		return nil, err
 	}
 
