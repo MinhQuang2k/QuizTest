@@ -46,48 +46,48 @@ func (p *GroupQuestionService) GetAll(ctx context.Context, userID uint) ([]*mode
 	return groupQuestions, nil
 }
 
-func (p *GroupQuestionService) Create(ctx context.Context, req *serializers.CreateGroupQuestionReq) (*models.GroupQuestion, error) {
+func (p *GroupQuestionService) Create(ctx context.Context, req *serializers.CreateGroupQuestionReq) error {
 	var groupQuestion models.GroupQuestion
 	utils.Copy(&groupQuestion, req)
 
 	err := p.repo.Create(ctx, &groupQuestion)
 	if err != nil {
 		logger.Errorf("Create fail, error: %s", err)
-		return nil, err
+		return err
 	}
 
-	return &groupQuestion, nil
+	return nil
 }
 
-func (p *GroupQuestionService) Update(ctx context.Context, id uint, req *serializers.UpdateGroupQuestionReq) (*models.GroupQuestion, error) {
+func (p *GroupQuestionService) Update(ctx context.Context, id uint, req *serializers.UpdateGroupQuestionReq) error {
 	groupQuestion, err := p.repo.GetByID(ctx, id, req.UserID)
 	if err != nil {
 		logger.Errorf("Update.GetByID fail, id: %s, error: %s", id, err)
-		return nil, err
+		return err
 	}
 
 	utils.Copy(groupQuestion, req)
 	err = p.repo.Update(ctx, groupQuestion)
 	if err != nil {
 		logger.Errorf("Update fail, id: %s, error: %s", id, err)
-		return nil, err
+		return err
 	}
 
-	return groupQuestion, nil
+	return nil
 }
 
-func (p *GroupQuestionService) Delete(ctx context.Context, id uint, userID uint) (*models.GroupQuestion, error) {
+func (p *GroupQuestionService) Delete(ctx context.Context, id uint, userID uint) error {
 	groupQuestion, err := p.repo.GetByID(ctx, id, userID)
 	if err != nil {
 		logger.Errorf("Delete.GetByID fail, id: %s, error: %s", id, err)
-		return nil, err
+		return err
 	}
 
 	err = p.repo.Delete(ctx, groupQuestion)
 	if err != nil {
 		logger.Errorf("Delete fail, id: %s, error: %s", id, err)
-		return nil, err
+		return err
 	}
 
-	return groupQuestion, nil
+	return nil
 }

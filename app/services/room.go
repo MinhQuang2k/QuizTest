@@ -38,48 +38,48 @@ func (p *RoomService) GetPaging(ctx context.Context, req *serializers.GetPagingR
 	return rooms, pagination, nil
 }
 
-func (p *RoomService) Create(ctx context.Context, req *serializers.CreateRoomReq) (*models.Room, error) {
+func (p *RoomService) Create(ctx context.Context, req *serializers.CreateRoomReq) error {
 	var room models.Room
 	utils.Copy(&room, req)
 
 	err := p.repo.Create(ctx, &room)
 	if err != nil {
 		logger.Errorf("Create fail, error: %s", err)
-		return nil, err
+		return err
 	}
 
-	return &room, nil
+	return nil
 }
 
-func (p *RoomService) Update(ctx context.Context, id uint, req *serializers.UpdateRoomReq) (*models.Room, error) {
+func (p *RoomService) Update(ctx context.Context, id uint, req *serializers.UpdateRoomReq) error {
 	room, err := p.repo.GetByID(ctx, id, req.UserID)
 	if err != nil {
 		logger.Errorf("Update.GetByID fail, id: %s, error: %s", id, err)
-		return nil, err
+		return err
 	}
 
 	utils.Copy(room, req)
 	err = p.repo.Update(ctx, room)
 	if err != nil {
 		logger.Errorf("Update fail, id: %s, error: %s", id, err)
-		return nil, err
+		return err
 	}
 
-	return room, nil
+	return nil
 }
 
-func (p *RoomService) Delete(ctx context.Context, id uint, userID uint) (*models.Room, error) {
+func (p *RoomService) Delete(ctx context.Context, id uint, userID uint) error {
 	room, err := p.repo.GetByID(ctx, id, userID)
 	if err != nil {
 		logger.Errorf("Delete.GetByID fail, id: %s, error: %s", id, err)
-		return nil, err
+		return err
 	}
 
 	err = p.repo.Delete(ctx, room)
 	if err != nil {
 		logger.Errorf("Delete fail, id: %s, error: %s", id, err)
-		return nil, err
+		return err
 	}
 
-	return room, nil
+	return nil
 }

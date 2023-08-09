@@ -26,13 +26,13 @@ func NewUserAPI(service interfaces.IUserService) *UserAPI {
 func (u *UserAPI) Login(c *gin.Context) gohttp.Response {
 	var req serializers.LoginReq
 	if err := c.ShouldBindJSON(&req); c.Request.Body == nil || err != nil {
-		logger.Error("Failed to get body", err)
+		logger.Error(err.Error())
 		return gohttp.Response{
 			Error: errors.InvalidParams.Newm(err.Error()),
 		}
 	}
 
-	user, accessToken, refreshToken, err := u.service.Login(c, &req)
+	accessToken, refreshToken, err := u.service.Login(c, &req)
 	if err != nil {
 		logger.Error(err.Error())
 		return gohttp.Response{
@@ -41,7 +41,6 @@ func (u *UserAPI) Login(c *gin.Context) gohttp.Response {
 	}
 
 	var res serializers.LoginRes
-	utils.Copy(&res.User, &user)
 	res.AccessToken = accessToken
 	res.RefreshToken = refreshToken
 	return gohttp.Response{
@@ -59,7 +58,7 @@ func (u *UserAPI) Register(c *gin.Context) gohttp.Response {
 		}
 	}
 
-	user, err := u.service.Register(c, &req)
+	err := u.service.Register(c, &req)
 	if err != nil {
 		logger.Error(err.Error())
 		return gohttp.Response{
@@ -67,11 +66,8 @@ func (u *UserAPI) Register(c *gin.Context) gohttp.Response {
 		}
 	}
 
-	var res serializers.RegisterRes
-	utils.Copy(&res.User, &user)
 	return gohttp.Response{
 		Error: errors.Success.New(),
-		Data:  res,
 	}
 }
 

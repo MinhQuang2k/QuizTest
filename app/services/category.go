@@ -20,18 +20,19 @@ func NewCategoryService(repo interfaces.ICategoryRepository) interfaces.ICategor
 	return &CategoryService{repo: repo}
 }
 
-func (p *CategoryService) Create(ctx context.Context, req *serializers.CreateCategoryReq) (*models.Category, error) {
+func (p *CategoryService) Create(ctx context.Context, req *serializers.CreateCategoryReq) error {
 	var category models.Category
 	utils.Copy(&category, req)
 	var subjects []*models.Subject
 	utils.Copy(&subjects, req.Subjects)
+	category.Subjects = subjects
 
 	if err := p.repo.Create(ctx, &category); err != nil {
 		logger.Errorf("Create fail, error: %s", err)
-		return nil, err
+		return err
 	}
 
-	return &category, nil
+	return nil
 }
 
 func (p *CategoryService) GetByID(ctx context.Context, id uint, userID uint) (*models.Category, error) {
@@ -61,35 +62,35 @@ func (p *CategoryService) GetAll(ctx context.Context, userID uint) ([]*models.Ca
 	return categories, nil
 }
 
-func (p *CategoryService) Update(ctx context.Context, id uint, req *serializers.UpdateCategoryReq) (*models.Category, error) {
+func (p *CategoryService) Update(ctx context.Context, id uint, req *serializers.UpdateCategoryReq) error {
 	category, err := p.repo.GetByID(ctx, id, req.UserID)
 	if err != nil {
 		logger.Errorf("Update.GetByID fail, id: %s, error: %s", id, err)
-		return nil, err
+		return err
 	}
 
 	utils.Copy(category, req)
 	err = p.repo.Update(ctx, category)
 	if err != nil {
 		logger.Errorf("Update fail, id: %s, error: %s", id, err)
-		return nil, err
+		return err
 	}
 
-	return category, nil
+	return nil
 }
 
-func (p *CategoryService) Delete(ctx context.Context, id uint, userID uint) (*models.Category, error) {
+func (p *CategoryService) Delete(ctx context.Context, id uint, userID uint) error {
 	category, err := p.repo.GetByID(ctx, id, userID)
 	if err != nil {
 		logger.Errorf("Delete.GetByID fail, id: %s, error: %s", id, err)
-		return nil, err
+		return err
 	}
 
 	err = p.repo.Delete(ctx, category)
 	if err != nil {
 		logger.Errorf("Delete fail, id: %s, error: %s", id, err)
-		return nil, err
+		return err
 	}
 
-	return category, nil
+	return nil
 }

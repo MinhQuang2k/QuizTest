@@ -54,69 +54,73 @@ func (p *ExamService) GetAll(ctx context.Context, userID uint) ([]*models.Exam, 
 	return exams, nil
 }
 
-func (p *ExamService) Create(ctx context.Context, req *serializers.CreateExamReq) (*models.Exam, error) {
+func (p *ExamService) Create(ctx context.Context, req *serializers.CreateExamReq) error {
 	var exam models.Exam
 	utils.Copy(&exam, req)
 
 	err := p.repo.Create(ctx, &exam, req.UserID)
 	if err != nil {
 		logger.Errorf("Create fail, error: %s", err)
-		return nil, err
+		return err
 	}
 
-	return &exam, nil
+	return nil
 }
 
-func (p *ExamService) Update(ctx context.Context, id uint, req *serializers.UpdateExamReq) (*models.Exam, error) {
+func (p *ExamService) Update(ctx context.Context, id uint, req *serializers.UpdateExamReq) error {
 	exam, err := p.repo.GetByID(ctx, id, req.UserID)
 	if err != nil {
 		logger.Errorf("Update.GetByID fail, id: %s, error: %s", id, err)
-		return nil, err
+		return err
 	}
 
 	utils.Copy(exam, req)
 	err = p.repo.Update(ctx, exam)
 	if err != nil {
 		logger.Errorf("Update fail, id: %s, error: %s", id, err)
-		return nil, err
+		return err
 	}
 
-	return exam, nil
+	return nil
 }
 
-func (p *ExamService) Delete(ctx context.Context, id uint, userID uint) (*models.Exam, error) {
+func (p *ExamService) Delete(ctx context.Context, id uint, userID uint) error {
 	exam, err := p.repo.GetByID(ctx, id, userID)
 	if err != nil {
 		logger.Errorf("Delete.GetByID fail, id: %s, error: %s", id, err)
-		return nil, err
+		return err
 	}
 
 	err = p.repo.Delete(ctx, exam)
 	if err != nil {
 		logger.Errorf("Delete fail, id: %s, error: %s", id, err)
-		return nil, err
+		return err
 	}
 
-	return exam, nil
+	return nil
 }
 
-func (p *ExamService) AddQuestion(ctx context.Context, id, question_id, userID uint) (*models.Exam, error) {
+func (p *ExamService) AddQuestion(ctx context.Context, id, question_id, userID uint) error {
 	question, err := p.repoQuestion.GetByID(ctx, question_id, userID)
 	if err != nil {
 		logger.Errorf("AddQuestion.GetQuestion fail, id: %s, error: %s", question_id, err)
-		return nil, err
+		return err
 	}
 
 	exam, err := p.repo.GetByID(ctx, id, userID)
 	if err != nil {
 		logger.Errorf("AddQuestion.GetExam fail, id: %s, error: %s", id, err)
-		return nil, err
+		return err
 	}
-	_, err = p.repo.GetExamQuestionByID(ctx, exam.ID, question.ID)
+	exitExamQuestion, err := p.repo.GetExamQuestionByID(ctx, exam.ID, question.ID)
 
-	if err == nil {
+	if err != nil {
+		logger.Errorf("AddQuestion.GetExamQuestion fail, id: %s, error: %s", id, err)
+		return err
+	}
+	if exitExamQuestion != nil {
 		logger.Errorf("AddQuestion.Exam fail, id: %s, error: %s", id, err)
-		return nil, errors.ErrorExistName.New()
+		return errors.ErrorExistName.New()
 	}
 
 	var examQuestion models.ExamQuestion
@@ -126,10 +130,10 @@ func (p *ExamService) AddQuestion(ctx context.Context, id, question_id, userID u
 	err = p.repo.Update(ctx, exam)
 	if err != nil {
 		logger.Errorf("Update fail, id: %s, error: %s", id, err)
-		return nil, err
+		return err
 	}
 
-	return exam, nil
+	return nil
 }
 
 func (p *ExamService) DeleteQuestion(ctx context.Context, id, question_id, userID uint) error {

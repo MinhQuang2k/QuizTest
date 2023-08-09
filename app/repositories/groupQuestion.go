@@ -83,7 +83,7 @@ func (r *GroupQuestionRepo) Create(ctx context.Context, groupQuestion *models.Gr
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 
-	if err := r.db.GetInstance().Where("name = ?", groupQuestion.Name).Where("user_id = ?", groupQuestion.UserID).First(&groupQuestion).Error; err == nil {
+	if rowsAffected := r.db.GetInstance().Where("name = ?", groupQuestion.Name).Where("user_id = ?", groupQuestion.UserID).First(&groupQuestion).RowsAffected; rowsAffected != 0 {
 		return errors.ErrorExistName.New()
 	}
 
@@ -98,7 +98,7 @@ func (r *GroupQuestionRepo) Update(ctx context.Context, groupQuestion *models.Gr
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 
-	if err := r.db.GetInstance().Where("name = ?", groupQuestion.Name).Where("user_id = ?", groupQuestion.UserID).First(&groupQuestion).Error; err == nil {
+	if rowsAffected := r.db.GetInstance().Where("name = ?", groupQuestion.Name).Where("user_id = ?", groupQuestion.UserID).First(&groupQuestion).RowsAffected; rowsAffected != 0 {
 		return errors.ErrorExistName.New()
 	}
 
@@ -115,7 +115,7 @@ func (r *GroupQuestionRepo) Delete(ctx context.Context, groupQuestion *models.Gr
 	rowsAffected := r.db.GetInstance().Delete(&groupQuestion).RowsAffected
 
 	if rowsAffected == 0 {
-		return errors.ErrorNotFound.New()
+		return errors.ErrorDatabaseDelete.New()
 	}
 
 	return nil

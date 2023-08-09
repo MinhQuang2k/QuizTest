@@ -141,7 +141,7 @@ func (r *QuestionRepo) Delete(ctx context.Context, question *models.Question) er
 	rowsAffected := r.db.GetInstance().Delete(&question).RowsAffected
 
 	if rowsAffected == 0 {
-		return errors.ErrorNotFound.New()
+		return errors.ErrorDatabaseDelete.New()
 	}
 
 	return nil

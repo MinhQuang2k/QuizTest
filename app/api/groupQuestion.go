@@ -34,18 +34,15 @@ func (p *GroupQuestionAPI) Create(c *gin.Context) gohttp.Response {
 
 	req.UserID = c.MustGet("userId").(uint)
 
-	groupQuestion, err := p.service.Create(c, &req)
+	err := p.service.Create(c, &req)
 	if err != nil {
 		return gohttp.Response{
 			Error: err,
 		}
 	}
 
-	var res serializers.GroupQuestion
-	utils.Copy(&res, &groupQuestion)
 	return gohttp.Response{
 		Error: errors.Success.New(),
-		Data:  res,
 	}
 }
 
@@ -106,7 +103,7 @@ func (p *GroupQuestionAPI) Update(c *gin.Context) gohttp.Response {
 
 	req.UserID = c.MustGet("userId").(uint)
 
-	groupQuestion, err := p.service.Update(c, groupQuestionId, &req)
+	err := p.service.Update(c, groupQuestionId, &req)
 	if err != nil {
 		logger.Error(err.Error())
 		return gohttp.Response{
@@ -114,11 +111,8 @@ func (p *GroupQuestionAPI) Update(c *gin.Context) gohttp.Response {
 		}
 	}
 
-	var res serializers.GroupQuestion
-	utils.Copy(&res, &groupQuestion)
 	return gohttp.Response{
 		Error: errors.Success.New(),
-		Data:  res,
 	}
 }
 
@@ -145,7 +139,7 @@ func (p *GroupQuestionAPI) Delete(c *gin.Context) gohttp.Response {
 	groupQuestionId := utils.StringToUint(c.Param("id"))
 	userID := c.MustGet("userId").(uint)
 
-	groupQuestion, err := p.service.Delete(c, groupQuestionId, userID)
+	err := p.service.Delete(c, groupQuestionId, userID)
 	if err != nil {
 		logger.Error(err.Error())
 		return gohttp.Response{
@@ -153,10 +147,7 @@ func (p *GroupQuestionAPI) Delete(c *gin.Context) gohttp.Response {
 		}
 	}
 
-	var res serializers.GroupQuestion
-	utils.Copy(&res, &groupQuestion)
 	return gohttp.Response{
 		Error: errors.Success.New(),
-		Data:  res,
 	}
 }

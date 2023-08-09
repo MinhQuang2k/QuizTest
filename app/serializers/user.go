@@ -5,28 +5,22 @@ import (
 )
 
 type User struct {
-	ID        uint      `json:"id"`
 	Email     string    `json:"email"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type RegisterReq struct {
-	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required,password"`
-}
-
-type RegisterRes struct {
-	User User `json:"user"`
+	Email    string `json:"email" validate:"required"`
+	Password string `json:"password" validate:"required,password,min=8,max=40"`
 }
 
 type LoginReq struct {
 	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required,password"`
+	Password string `json:"password" validate:"required,password,password,min=8,max=40"`
 }
 
 type LoginRes struct {
-	User         User   `json:"user"`
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 }

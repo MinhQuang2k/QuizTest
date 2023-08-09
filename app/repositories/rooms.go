@@ -102,7 +102,7 @@ func (r *RoomRepo) Delete(ctx context.Context, room *models.Room) error {
 	rowsAffected := r.db.GetInstance().Delete(&room).RowsAffected
 
 	if rowsAffected == 0 {
-		return errors.ErrorNotFound.New()
+		return errors.ErrorDatabaseDelete.New()
 	}
 
 	return nil

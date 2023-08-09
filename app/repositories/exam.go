@@ -132,7 +132,7 @@ func (r *ExamRepo) Delete(ctx context.Context, exam *models.Exam) error {
 	rowsAffected := r.db.GetInstance().Delete(&exam).RowsAffected
 
 	if rowsAffected == 0 {
-		return errors.ErrorNotFound.New()
+		return errors.ErrorDatabaseDelete.New()
 	}
 
 	return nil
@@ -156,7 +156,7 @@ func (r *ExamRepo) DeleteExamQuestion(ctx context.Context, examQuestion *models.
 	rowsAffected := r.db.GetInstance().Delete(&examQuestion).RowsAffected
 
 	if rowsAffected == 0 {
-		return errors.ErrorNotFound.New()
+		return errors.ErrorDatabaseDelete.New()
 	}
 
 	return nil

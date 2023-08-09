@@ -34,18 +34,15 @@ func (p *ExamAPI) Create(c *gin.Context) gohttp.Response {
 
 	req.UserID = c.MustGet("userId").(uint)
 
-	exam, err := p.service.Create(c, &req)
+	err := p.service.Create(c, &req)
 	if err != nil {
 		return gohttp.Response{
 			Error: err,
 		}
 	}
 
-	var res serializers.Exam
-	utils.Copy(&res, &exam)
 	return gohttp.Response{
 		Error: errors.Success.New(),
-		Data:  res,
 	}
 }
 
@@ -106,7 +103,7 @@ func (p *ExamAPI) Update(c *gin.Context) gohttp.Response {
 
 	req.UserID = c.MustGet("userId").(uint)
 
-	exam, err := p.service.Update(c, examId, &req)
+	err := p.service.Update(c, examId, &req)
 	if err != nil {
 		logger.Error(err.Error())
 		return gohttp.Response{
@@ -114,11 +111,8 @@ func (p *ExamAPI) Update(c *gin.Context) gohttp.Response {
 		}
 	}
 
-	var res serializers.Exam
-	utils.Copy(&res, &exam)
 	return gohttp.Response{
 		Error: errors.Success.New(),
-		Data:  res,
 	}
 }
 
@@ -127,7 +121,7 @@ func (p *ExamAPI) AddQuestion(c *gin.Context) gohttp.Response {
 	questionID := utils.StringToUint(c.Param("question_id"))
 	userID := c.MustGet("userId").(uint)
 
-	exam, err := p.service.AddQuestion(c, examId, questionID, userID)
+	err := p.service.AddQuestion(c, examId, questionID, userID)
 	if err != nil {
 		logger.Error(err.Error())
 		return gohttp.Response{
@@ -135,11 +129,8 @@ func (p *ExamAPI) AddQuestion(c *gin.Context) gohttp.Response {
 		}
 	}
 
-	var res serializers.Exam
-	utils.Copy(&res, &exam)
 	return gohttp.Response{
 		Error: errors.Success.New(),
-		Data:  res,
 	}
 }
 
@@ -185,7 +176,7 @@ func (p *ExamAPI) Delete(c *gin.Context) gohttp.Response {
 	examId := utils.StringToUint(c.Param("id"))
 	userID := c.MustGet("userId").(uint)
 
-	exam, err := p.service.Delete(c, examId, userID)
+	err := p.service.Delete(c, examId, userID)
 	if err != nil {
 		logger.Error(err.Error())
 		return gohttp.Response{
@@ -193,11 +184,8 @@ func (p *ExamAPI) Delete(c *gin.Context) gohttp.Response {
 		}
 	}
 
-	var res serializers.Exam
-	utils.Copy(&res, &exam)
 	return gohttp.Response{
 		Error: errors.Success.New(),
-		Data:  res,
 	}
 }
 

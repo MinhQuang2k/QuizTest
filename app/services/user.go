@@ -23,16 +23,16 @@ func NewUserService(repo interfaces.IUserRepository) interfaces.IUserService {
 	return &UserService{repo: repo}
 }
 
-func (u *UserService) Login(ctx context.Context, req *serializers.LoginReq) (*models.User, string, string, error) {
+func (u *UserService) Login(ctx context.Context, req *serializers.LoginReq) (string, string, error) {
 	user, err := u.repo.GetByEmail(ctx, req.Email)
 	if err != nil {
 		logger.Errorf("Login.GetByEmail fail, email: %s, error: %s", req.Email, err)
-		return nil, "", "", err
+		return "", "", err
 	}
 
 	passErr := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
 	if passErr == bcrypt.ErrMismatchedHashAndPassword && passErr != nil {
-		return nil, "", "", errors.New("wrong password")
+		return "", "", errors.New("wrong password")
 	}
 
 	tokenData := map[string]interface{}{
@@ -42,18 +42,18 @@ func (u *UserService) Login(ctx context.Context, req *serializers.LoginReq) (*mo
 	}
 	accessToken := jtoken.GenerateAccessToken(tokenData)
 	refreshToken := jtoken.GenerateRefreshToken(tokenData)
-	return user, accessToken, refreshToken, nil
+	return accessToken, refreshToken, nil
 }
 
-func (u *UserService) Register(ctx context.Context, req *serializers.RegisterReq) (*models.User, error) {
+func (u *UserService) Register(ctx context.Context, req *serializers.RegisterReq) error {
 	var user models.User
 	utils.Copy(&user, &req)
 	err := u.repo.Create(ctx, &user)
 	if err != nil {
 		logger.Errorf("Register.Create fail, email: %s, error: %s", req.Email, err)
-		return nil, err
+		return err
 	}
-	return &user, nil
+	return nil
 }
 
 func (u *UserService) GetByID(ctx context.Context, id uint) (*models.User, error) {

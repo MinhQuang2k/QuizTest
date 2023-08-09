@@ -34,18 +34,15 @@ func (p *RoomAPI) Create(c *gin.Context) gohttp.Response {
 
 	req.UserID = c.MustGet("userId").(uint)
 
-	room, err := p.service.Create(c, &req)
+	err := p.service.Create(c, &req)
 	if err != nil {
 		return gohttp.Response{
 			Error: err,
 		}
 	}
 
-	var res serializers.Room
-	utils.Copy(&res, &room)
 	return gohttp.Response{
 		Error: errors.Success.New(),
-		Data:  res,
 	}
 }
 
@@ -88,7 +85,7 @@ func (p *RoomAPI) Update(c *gin.Context) gohttp.Response {
 
 	req.UserID = c.MustGet("userId").(uint)
 
-	room, err := p.service.Update(c, roomId, &req)
+	err := p.service.Update(c, roomId, &req)
 	if err != nil {
 		logger.Error(err.Error())
 		return gohttp.Response{
@@ -96,11 +93,8 @@ func (p *RoomAPI) Update(c *gin.Context) gohttp.Response {
 		}
 	}
 
-	var res serializers.Room
-	utils.Copy(&res, &room)
 	return gohttp.Response{
 		Error: errors.Success.New(),
-		Data:  res,
 	}
 }
 
@@ -148,7 +142,7 @@ func (p *RoomAPI) Delete(c *gin.Context) gohttp.Response {
 	roomId := utils.StringToUint(c.Param("id"))
 	userID := c.MustGet("userId").(uint)
 
-	room, err := p.service.Delete(c, roomId, userID)
+	err := p.service.Delete(c, roomId, userID)
 	if err != nil {
 		logger.Error(err.Error())
 		return gohttp.Response{
@@ -156,10 +150,7 @@ func (p *RoomAPI) Delete(c *gin.Context) gohttp.Response {
 		}
 	}
 
-	var res serializers.Room
-	utils.Copy(&res, &room)
 	return gohttp.Response{
 		Error: errors.Success.New(),
-		Data:  res,
 	}
 }

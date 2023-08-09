@@ -45,19 +45,15 @@ func (p *CategoryAPI) Create(c *gin.Context) gohttp.Response {
 
 	req.UserID = c.MustGet("userId").(uint)
 
-	category, err := p.service.Create(c, &req)
+	err := p.service.Create(c, &req)
 	if err != nil {
 		return gohttp.Response{
 			Error: err,
 		}
 	}
 
-	var res serializers.CreateCategoryRes
-	utils.Copy(&res, &category)
-
 	return gohttp.Response{
 		Error: errors.Success.New(),
-		Data:  res,
 	}
 }
 
@@ -118,7 +114,7 @@ func (p *CategoryAPI) Update(c *gin.Context) gohttp.Response {
 
 	req.UserID = c.MustGet("userId").(uint)
 
-	category, err := p.service.Update(c, categoryId, &req)
+	err := p.service.Update(c, categoryId, &req)
 	if err != nil {
 		logger.Error(err.Error())
 		return gohttp.Response{
@@ -126,11 +122,8 @@ func (p *CategoryAPI) Update(c *gin.Context) gohttp.Response {
 		}
 	}
 
-	var res serializers.Category
-	utils.Copy(&res, &category)
 	return gohttp.Response{
 		Error: errors.Success.New(),
-		Data:  res,
 	}
 }
 
@@ -157,7 +150,7 @@ func (p *CategoryAPI) Delete(c *gin.Context) gohttp.Response {
 	categoryId := utils.StringToUint(c.Param("id"))
 	userID := c.MustGet("userId").(uint)
 
-	category, err := p.service.Delete(c, categoryId, userID)
+	err := p.service.Delete(c, categoryId, userID)
 	if err != nil {
 		logger.Error(err.Error())
 		return gohttp.Response{
@@ -165,10 +158,7 @@ func (p *CategoryAPI) Delete(c *gin.Context) gohttp.Response {
 		}
 	}
 
-	var res serializers.Category
-	utils.Copy(&res, &category)
 	return gohttp.Response{
 		Error: errors.Success.New(),
-		Data:  res,
 	}
 }

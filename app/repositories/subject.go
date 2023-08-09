@@ -22,7 +22,9 @@ func (r *SubjectRepo) Create(ctx context.Context, subject *models.Subject) error
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 
-	if err := r.db.GetInstance().Where("name = ?", subject.Name).Where("category_id = ?", subject.CategoryID).First(&subject).Error; err == nil {
+	if rowsAffected := r.db.GetInstance().Where("name = ?", subject.Name).
+		Where("category_id = ?", subject.CategoryID).
+		First(&subject).RowsAffected; rowsAffected != 0 {
 		return errors.ErrorExistName.New()
 	}
 
@@ -37,7 +39,9 @@ func (r *SubjectRepo) Update(ctx context.Context, subject *models.Subject) error
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 
-	if err := r.db.GetInstance().Where("name = ?", subject.Name).Where("category_id = ?", subject.CategoryID).First(&subject).Error; err == nil {
+	if rowsAffected := r.db.GetInstance().Where("name = ?", subject.Name).
+		Where("category_id = ?", subject.CategoryID).
+		First(&subject).RowsAffected; rowsAffected != 0 {
 		return errors.ErrorExistName.New()
 	}
 
@@ -51,9 +55,9 @@ func (r *SubjectRepo) Move(ctx context.Context, req *serializers.MoveSubjectReq,
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 	var newSubject models.Subject
-	if err := r.db.GetInstance().Where("category_id = ?", req.NewCategoryID).
+	if rowsAffected := r.db.GetInstance().Where("category_id = ?", req.NewCategoryID).
 		Where("name = ?", subject.Name).
-		First(&newSubject).Error; err == nil {
+		First(&newSubject).RowsAffected; rowsAffected != 0 {
 		return errors.ErrorExistName.New()
 	}
 
@@ -69,10 +73,9 @@ func (r *SubjectRepo) Move(ctx context.Context, req *serializers.MoveSubjectReq,
 func (r *SubjectRepo) Delete(ctx context.Context, subject *models.Subject) error {
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
-	rowsAffected := r.db.GetInstance().Delete(&subject).RowsAffected
 
-	if rowsAffected == 0 {
-		return errors.ErrorNotFound.New()
+	if err := r.db.GetInstance().Delete(&subject).Error; err != nil {
+		return errors.ErrorDatabaseDelete.New()
 	}
 
 	return nil
@@ -95,8 +98,10 @@ func (r *SubjectRepo) GetByID(ctx context.Context, id uint, categoryID uint) (*m
 	defer cancel()
 
 	var subject models.Subject
-	if err := r.db.GetInstance().Where("id = ?", id).Where("category_id = ?", categoryID).First(&subject).Error; err != nil {
-		return nil, errors.ErrorNotFound.Newm(err.Error())
+	if err := r.db.GetInstance().Where("id = ?", id).
+		Where("category_id = ?", categoryID).
+		First(&subject).Error; err != nil {
+		return nil, errors.ErrorDatabaseGet.Newm(err.Error())
 	}
 
 	return &subject, nil

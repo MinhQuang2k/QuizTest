@@ -23,10 +23,10 @@ func (r *CategoryRepo) Create(ctx context.Context, category *models.Category) er
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 
-	if err := r.db.GetInstance().
+	if rowsAffected := r.db.GetInstance().
 		Where("name = ?", category.Name).
 		Where("user_id = ?", category.UserID).
-		First(&category).Error; err == nil {
+		First(&category).RowsAffected; rowsAffected != 0 {
 		return errors.ErrorExistName.New()
 	}
 
@@ -93,7 +93,10 @@ func (r *CategoryRepo) GetByID(ctx context.Context, id uint, userID uint) (*mode
 	defer cancel()
 
 	var category models.Category
-	if err := r.db.GetInstance().Where("id = ?", id).Where("user_id = ?", userID).First(&category).Error; err != nil {
+	if err := r.db.GetInstance().
+		Where("id = ?", id).
+		Where("user_id = ?", userID).
+		First(&category).Error; err != nil {
 		return nil, errors.ErrorDatabaseGet.Newm(err.Error())
 	}
 
@@ -104,7 +107,9 @@ func (r *CategoryRepo) Update(ctx context.Context, category *models.Category) er
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 
-	if err := r.db.GetInstance().Where("name = ?", category.Name).Where("user_id = ?", category.UserID).First(&category).Error; err == nil {
+	if rowsAffected := r.db.GetInstance().Where("name = ?", category.Name).
+		Where("user_id = ?", category.UserID).
+		First(&category).RowsAffected; rowsAffected != 0 {
 		return errors.ErrorExistName.New()
 	}
 
@@ -121,7 +126,7 @@ func (r *CategoryRepo) Delete(ctx context.Context, category *models.Category) er
 	rowsAffected := r.db.GetInstance().Delete(&category).RowsAffected
 
 	if rowsAffected == 0 {
-		return errors.ErrorNotFound.New()
+		return errors.ErrorDatabaseDelete.New()
 	}
 
 	return nil
