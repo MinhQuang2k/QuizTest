@@ -37,13 +37,22 @@ func (p *ExamService) GetByID(ctx context.Context, id uint, userID uint) (*model
 	return exam, questions, nil
 }
 
-func (p *ExamService) GetPaging(ctx context.Context, req *serializers.GetPagingExamReq) ([]*models.Exam, *paging.Pagination, error) {
+func (p *ExamService) GetPaging(ctx context.Context, req *serializers.GetPagingExamReq) ([]*serializers.Exam, *paging.Pagination, error) {
 	exams, pagination, err := p.repo.GetPaging(ctx, req)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	return exams, pagination, nil
+	var examsFormat []*serializers.Exam
+	for _, ex := range exams {
+		exFormat := &serializers.Exam{}
+		utils.Copy(exFormat, ex)
+		exFormat.TotalQuestions = uint(len(ex.ExamQuestions))
+
+		examsFormat = append(examsFormat, exFormat)
+
+	}
+	return examsFormat, pagination, nil
 }
 func (p *ExamService) GetAll(ctx context.Context, userID uint) ([]*models.Exam, error) {
 	exams, err := p.repo.GetAll(ctx, userID)

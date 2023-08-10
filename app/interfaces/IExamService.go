@@ -8,7 +8,7 @@ import (
 )
 
 type IExamService interface {
-	GetPaging(c context.Context, req *serializers.GetPagingExamReq) ([]*models.Exam, *paging.Pagination, error)
+	GetPaging(c context.Context, req *serializers.GetPagingExamReq) ([]*serializers.Exam, *paging.Pagination, error)
 	GetAll(c context.Context, userID uint) ([]*models.Exam, error)
 	GetByID(ctx context.Context, id uint, userID uint) (*models.Exam, []*models.Question, error)
 	Create(ctx context.Context, req *serializers.CreateExamReq) error

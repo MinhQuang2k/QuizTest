@@ -11,8 +11,9 @@ type Exam struct {
 	TimeLimit       uint        `json:"time_limit"`
 	Description     string      `json:"description"`
 	ShuffleQuestion bool        `json:"shuffle_question"`
-	SubjectID       uint        `json:"subject_id"`
-	UserID          uint        `json:"user_id"`
+	TotalQuestions  uint        `json:"total_questions"`
+	TotalScore      uint        `json:"total_score"`
+	Subject         *Subject    `json:"subject"`
 	Questions       []*Question `json:"questions"`
 	Rooms           []*Room     `json:"rooms"`
 	CreatedAt       time.Time   `json:"created_at"`

@@ -25,7 +25,10 @@ func (r *ExamRepo) GetPaging(ctx context.Context, req *serializers.GetPagingExam
 	var total int64
 	var exams []*models.Exam
 
-	query := r.db.GetInstance().Preload("Rooms").
+	query := r.db.GetInstance().
+		Preload("Rooms").
+		Preload("ExamQuestions").
+		Preload("Subject").
 		Joins("JOIN subjects ON subjects.id = exams.subject_id").
 		Joins("JOIN categories ON categories.id = subjects.category_id").
 		Where("categories.user_id = ?", req.UserID)
