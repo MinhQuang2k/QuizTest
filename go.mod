@@ -1,6 +1,6 @@
 module quiztest
 
-go 1.20
+go 1.21.0
 
 require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
@@ -20,7 +20,7 @@ require (
 	golang.org/x/crypto v0.12.0
 	gorm.io/datatypes v1.2.0
 	gorm.io/driver/mysql v1.5.1
-	gorm.io/gorm v1.25.1
+	gorm.io/gorm v1.25.3
 )
 
 require (
@@ -30,6 +30,7 @@ require (
 	github.com/bytedance/sonic v1.9.1 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
+	github.com/gin-contrib/cors v1.4.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.19.6 // indirect

@@ -21,7 +21,7 @@ func Migrate(container *dig.Container) error {
 		Subject := models.Subject{}
 		Room := models.Room{}
 
-		db.GetInstance().AutoMigrate(&User, &GroupQuestion, &Category, &Subject, &ExamQuestion, &Exam, &Question, &Room)
+		db.GetInstance().AutoMigrate(&User, &GroupQuestion, &Category, &Subject, &Exam, &Question, &ExamQuestion, &Room)
 
 		return nil
 	})
