@@ -1,6 +1,7 @@
 package api
 
 import (
+	"quiztest/config"
 	"quiztest/pkg/errors"
 	gohttp "quiztest/pkg/http"
 	"quiztest/pkg/logger"
@@ -14,13 +15,16 @@ import (
 
 type CategoryAPI struct {
 	service interfaces.ICategoryService
+	rdbs    interfaces.ICache
 }
 
 func NewCategoryAPI(
 	service interfaces.ICategoryService,
+	rdbs interfaces.ICache,
 ) *CategoryAPI {
 	return &CategoryAPI{
 		service: service,
+		rdbs:    rdbs,
 	}
 }
 
@@ -87,6 +91,13 @@ func (p *CategoryAPI) GetPaging(c *gin.Context) gohttp.Response {
 
 func (p *CategoryAPI) GetAll(c *gin.Context) gohttp.Response {
 	var res []*serializers.Category
+	err := p.rdbs.GetInstance().Get(c.Request.URL.Path, &res)
+	if err == nil {
+		return gohttp.Response{
+			Error: errors.Success.New(),
+			Data:  res,
+		}
+	}
 	userID := c.MustGet("userId").(uint)
 	categories, err := p.service.GetAll(c, userID)
 	if err != nil {
@@ -97,6 +108,7 @@ func (p *CategoryAPI) GetAll(c *gin.Context) gohttp.Response {
 	}
 
 	utils.Copy(&res, &categories)
+	_ = p.rdbs.GetInstance().SetWithExpiration(c.Request.URL.Path, res, config.ProductCachingTime)
 	return gohttp.Response{
 		Error: errors.Success.New(),
 		Data:  res,

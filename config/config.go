@@ -14,7 +14,7 @@ const (
 	TestEnv       = "testing"
 
 	DatabaseTimeout    = 5 * time.Second
-	ProductCachingTime = 5 * time.Minute
+	ProductCachingTime = 10 * time.Minute
 )
 
 type Schema struct {

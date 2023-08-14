@@ -5,6 +5,7 @@ import (
 	"go.uber.org/dig"
 
 	"quiztest/app/api"
+	"quiztest/app/cache"
 	"quiztest/app/dbs"
 	"quiztest/app/repositories"
 	"quiztest/app/router"
@@ -25,6 +26,12 @@ func BuildContainer() *dig.Container {
 	err := dbs.Inject(container)
 	if err != nil {
 		logger.Error("Failed to inject database", err)
+	}
+
+	// Inject cache
+	err = cache.Inject(container)
+	if err != nil {
+		logger.Error("Failed to inject cache", err)
 	}
 
 	// Inject repositories
