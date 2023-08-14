@@ -16,7 +16,7 @@ type Exam struct {
 
 type ExamQuestion struct {
 	gorm.Model
-	ExamID     uint      `json:"exam_id"`
-	QuestionID uint      `json:"question_id"`
-	Question   *Question `json:"question"`
+	ExamID     uint `json:"exam_id"`
+	QuestionID uint `json:"question_id"`
+	Question   *Question
 }

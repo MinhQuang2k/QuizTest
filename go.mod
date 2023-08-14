@@ -1,10 +1,11 @@
 module quiztest
 
-go 1.20
+go 1.21.0
 
 require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/caarlos0/env v3.5.0+incompatible
+	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-playground/locales v0.14.1
 	github.com/go-playground/universal-translator v0.18.1
@@ -21,7 +22,7 @@ require (
 	golang.org/x/crypto v0.12.0
 	gorm.io/datatypes v1.2.0
 	gorm.io/driver/mysql v1.5.1
-	gorm.io/gorm v1.25.1
+	gorm.io/gorm v1.25.3
 )
 
 require (

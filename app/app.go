@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/dig"
 
+	"github.com/gin-contrib/cors"
 	"quiztest/app/api"
 	"quiztest/app/cache"
 	"quiztest/app/dbs"
@@ -58,6 +59,13 @@ func BuildContainer() *dig.Container {
 // InitGinEngine initial new gin engine
 func InitGinEngine(container *dig.Container) *gin.Engine {
 	app := gin.New()
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"},
+		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
 	router.Docs(app)
 	err := router.RegisterAPI(app, container)
 	if err != nil {

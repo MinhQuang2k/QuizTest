@@ -55,7 +55,7 @@ func (p *CategoryAPI) Create(c *gin.Context) gohttp.Response {
 			Error: err,
 		}
 	}
-
+	_ = p.cache.RemovePattern("*categories*")
 	return gohttp.Response{
 		Error: errors.Success.New(),
 	}
