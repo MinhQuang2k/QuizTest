@@ -72,3 +72,29 @@ type UpdateRoomReq struct {
 	Status                bool   `json:"status"`
 	ExamID                uint   `json:"exam_id"`
 }
+
+// {
+//     "name": "vfdvf",
+//     "note": "vffvf",
+//     "exam_id": 10342,
+//     "password_type": "no_pass",
+//     "password": null,
+//     "attempt_limit": 0,
+//     "name": "dcdcd",
+//     "start_at": null,
+//     "end_at": null,
+//     "access_codes": [],
+//     "is_require_phone": 0,
+//     "is_require_email": 0,
+//     "is_require_fullname": 1,
+//     "is_require_identify_code": 0,
+//     "is_require_group": 0,
+//     "is_require_position": 0,
+//     "status": true,
+//     "link_room_exam": "https://e.testcenter.vn/t/cEJ3VH0OJFAOM1RcRyYED0F4SHIX",
+//     "pass_mark": 80,
+//     "is_score_shown": true,
+//     "is_detail_result_shown": true,
+//     "is_percent_shown": true,
+//     "is_passed_result_shown": false
+// }

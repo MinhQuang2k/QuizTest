@@ -34,7 +34,11 @@ func (p *QuestionAPI) Create(c *gin.Context) gohttp.Response {
 
 	req.UserID = c.MustGet("userId").(uint)
 
-	err := p.service.Create(c, &req)
+	question, err := p.service.Create(c, &req)
+
+	var res serializers.Question
+
+	utils.Copy(&res, &question)
 	if err != nil {
 		return gohttp.Response{
 			Error: err,
@@ -43,6 +47,7 @@ func (p *QuestionAPI) Create(c *gin.Context) gohttp.Response {
 
 	return gohttp.Response{
 		Error: errors.Success.New(),
+		Data:  res,
 	}
 }
 
@@ -50,15 +55,19 @@ func (p *QuestionAPI) Clones(c *gin.Context) gohttp.Response {
 	questionClonesID := utils.StringToUint(c.Param("id"))
 	userID := c.MustGet("userId").(uint)
 
-	err := p.service.Clones(c, userID, questionClonesID)
+	question, err := p.service.Clones(c, userID, questionClonesID)
 	if err != nil {
 		return gohttp.Response{
 			Error: err,
 		}
 	}
 
+	var res serializers.Question
+	utils.Copy(&res, &question)
+
 	return gohttp.Response{
 		Error: errors.Success.New(),
+		Data:  res,
 	}
 }
 

@@ -38,27 +38,27 @@ func (p *QuestionService) GetPaging(ctx context.Context, req *serializers.GetPag
 	return questions, pagination, nil
 }
 
-func (p *QuestionService) Create(ctx context.Context, req *serializers.CreateQuestionReq) error {
+func (p *QuestionService) Create(ctx context.Context, req *serializers.CreateQuestionReq) (*models.Question, error) {
 	var question models.Question
 	utils.Copy(&question, req)
 
 	err := p.repo.Create(ctx, &question)
 	if err != nil {
 		logger.Errorf("Create fail, error: %s", err)
-		return err
+		return nil, err
 	}
 
-	return nil
+	return &question, nil
 }
 
-func (p *QuestionService) Clones(ctx context.Context, userID uint, questionClonesID uint) error {
-	err := p.repo.Clones(ctx, userID, questionClonesID)
+func (p *QuestionService) Clones(ctx context.Context, userID uint, questionClonesID uint) (*models.Question, error) {
+	question, err := p.repo.Clones(ctx, userID, questionClonesID)
 	if err != nil {
 		logger.Errorf("Create fail, error: %s", err)
-		return err
+		return nil, err
 	}
 
-	return nil
+	return question, nil
 }
 
 func (p *QuestionService) Update(ctx context.Context, id uint, req *serializers.UpdateQuestionReq) error {

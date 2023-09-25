@@ -11,8 +11,10 @@ type Exam struct {
 	TimeLimit       uint        `json:"time_limit"`
 	Description     string      `json:"description"`
 	ShuffleQuestion bool        `json:"shuffle_question"`
+	Type            int         `json:"type"`
 	TotalQuestions  uint        `json:"total_questions"`
 	TotalScore      uint        `json:"total_score"`
+	SubjectID       uint        `json:"subject_id"`
 	Subject         *Subject    `json:"subject"`
 	Questions       []*Question `json:"questions"`
 	Rooms           []*Room     `json:"rooms"`
@@ -26,8 +28,7 @@ type GetPagingExamReq struct {
 	Name      string `json:"name,omitempty" form:"name"`
 	Page      int64  `json:"-" form:"page"`
 	Limit     int64  `json:"-" form:"limit"`
-	OrderBy   string `json:"-" form:"order_by"`
-	OrderDesc bool   `json:"-" form:"order_desc"`
+	SortBy    string `json:"-" form:"sort_by"`
 }
 
 type GetPagingExamRes struct {
@@ -39,6 +40,7 @@ type CreateExamReq struct {
 	UserID          uint   `json:"user_id" validate:"required"`
 	Name            string `json:"name"`
 	TimeLimit       uint   `json:"time_limit"`
+	Type            int    `json:"type"`
 	Description     string `json:"description"`
 	ShuffleQuestion bool   `json:"shuffle_question"`
 	SubjectID       uint   `json:"subject_id"`
@@ -49,6 +51,7 @@ type UpdateExamReq struct {
 	Name            string `json:"name"`
 	TimeLimit       uint   `json:"time_limit"`
 	Description     string `json:"description"`
+	Type            int    `json:"type"`
 	ShuffleQuestion bool   `json:"shuffle_question"`
 	SubjectID       uint   `json:"subject_id"`
 }

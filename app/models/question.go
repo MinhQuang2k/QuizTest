@@ -7,7 +7,7 @@ import (
 
 type Question struct {
 	gorm.Model
-	Name                   string         `json:"name"`
+	Content                string         `json:"content"`
 	Type                   int            `json:"type"`
 	NoteAnswer             string         `json:"note_answer"`
 	Answer                 datatypes.JSON `json:"answer" gorm:"type:json"`

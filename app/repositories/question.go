@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 
+	"quiztest/app/constant"
 	"quiztest/app/interfaces"
 	"quiztest/app/models"
 	"quiztest/app/serializers"
@@ -26,22 +27,25 @@ func (r *QuestionRepo) GetPaging(ctx context.Context, req *serializers.GetPaging
 	var total int64
 	var questions []*models.Question
 	query := r.db.GetInstance().
+		Preload("GroupQuestion").
 		Joins("JOIN group_questions ON group_questions.id = questions.group_question_id").
 		Where("group_questions.user_id = ?", req.UserID)
 
-	order := "questions.created_at"
-	if req.Name != "" {
+	order := "questions.created_at DESC"
+	if req.Content != "" {
 		query = query.
-			Where("questions.name LIKE ?", "%"+req.Name+"%")
+			Where("questions.content LIKE ?", "%"+req.Content+"%")
 	}
 	if req.GroupQuestionID != 0 {
 		query = query.Where("questions.group_question_id = ?", req.GroupQuestionID)
 	}
-	if req.OrderBy != "" {
-		order = req.OrderBy
-		if req.OrderDesc {
-			order += " DESC"
-		}
+
+	if req.SortBy == constant.SortBy["recent"] {
+		order = "questions.created_at DESC"
+	}
+
+	if req.SortBy == constant.SortBy["alphabet"] {
+		order = "questions.content"
 	}
 
 	pagination := paging.New(req.Page, req.Limit, total)
@@ -84,6 +88,7 @@ func (r *QuestionRepo) GetByExamID(ctx context.Context, examID uint) ([]*models.
 		Joins("JOIN exam_questions ON exam_questions.question_id = questions.id").
 		Where("exam_questions.exam_id = ?", examID).
 		Where("exam_questions.deleted_at IS NULL").
+		Order("questions.created_at DESC").
 		Find(&questions).Error; err != nil {
 		return nil, errors.ErrorDatabaseGet.Newm(err.Error())
 	}
@@ -102,13 +107,13 @@ func (r *QuestionRepo) Create(ctx context.Context, question *models.Question) er
 	return nil
 }
 
-func (r *QuestionRepo) Clones(ctx context.Context, userID uint, questionClonesID uint) error {
+func (r *QuestionRepo) Clones(ctx context.Context, userID uint, questionClonesID uint) (*models.Question, error) {
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
 
 	var question models.Question
 	if err := r.db.GetInstance().Where("id = ?", questionClonesID).First(&question).Error; err != nil {
-		return errors.ErrorDatabaseGet.Newm(err.Error())
+		return nil, errors.ErrorDatabaseGet.Newm(err.Error())
 	}
 	var questionClones serializers.QuestionClones
 
@@ -118,10 +123,10 @@ func (r *QuestionRepo) Clones(ctx context.Context, userID uint, questionClonesID
 	var questionNew models.Question
 	utils.Copy(&questionNew, &questionClones)
 	if err := r.db.GetInstance().Create(&questionNew).Error; err != nil {
-		return errors.ErrorDatabaseCreate.Newm(err.Error())
+		return nil, errors.ErrorDatabaseCreate.Newm(err.Error())
 	}
 
-	return nil
+	return &questionNew, nil
 }
 
 func (r *QuestionRepo) Update(ctx context.Context, question *models.Question, userID uint) error {
@@ -138,6 +143,11 @@ func (r *QuestionRepo) Update(ctx context.Context, question *models.Question, us
 func (r *QuestionRepo) Delete(ctx context.Context, question *models.Question) error {
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
+
+	if err := r.db.GetInstance().Where("question_id = ?", question.Model.ID).Delete(&models.ExamQuestion{}); err == nil {
+		return errors.ErrorDatabaseDelete.New()
+	}
+
 	rowsAffected := r.db.GetInstance().Delete(&question).RowsAffected
 
 	if rowsAffected == 0 {
@@ -145,4 +155,25 @@ func (r *QuestionRepo) Delete(ctx context.Context, question *models.Question) er
 	}
 
 	return nil
+}
+
+func (r *QuestionRepo) GetTotalScore(ctx context.Context, questions []uint) uint {
+	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
+	defer cancel()
+
+	var result struct {
+		totalScore int
+	}
+	if len(questions) == 0 {
+		return 0
+	}
+	if err := r.db.GetInstance().
+		Table("questions").
+		Select("SUM(score) as totalScore").
+		Where("id IN (?)", questions).
+		Find(&result.totalScore).Error; err != nil {
+		return 0
+	}
+
+	return uint(result.totalScore)
 }

@@ -22,7 +22,7 @@ func NewExamService(repo interfaces.IExamRepository, repoQuestion interfaces.IQu
 	return &ExamService{repo: repo, repoQuestion: repoQuestion}
 }
 
-func (p *ExamService) GetByID(ctx context.Context, id uint, userID uint) (*models.Exam, []*models.Question, error) {
+func (p *ExamService) GetByID(ctx context.Context, id uint, userID uint) (*serializers.Exam, []*models.Question, error) {
 	exam, err := p.repo.GetByID(ctx, id, userID)
 
 	if err != nil {
@@ -30,11 +30,20 @@ func (p *ExamService) GetByID(ctx context.Context, id uint, userID uint) (*model
 	}
 	questions, err := p.repoQuestion.GetByExamID(ctx, exam.ID)
 
+	var examsFormat serializers.Exam
+	utils.Copy(&examsFormat, &exam)
+	listQuestion := []uint{}
+	for _, item := range questions {
+		listQuestion = append(listQuestion, item.ID)
+	}
+	examsFormat.TotalQuestions = uint(len(listQuestion))
+	examsFormat.TotalScore = p.repoQuestion.GetTotalScore(ctx, listQuestion)
+
 	if err != nil {
 		return nil, nil, err
 	}
 
-	return exam, questions, nil
+	return &examsFormat, questions, nil
 }
 
 func (p *ExamService) GetPaging(ctx context.Context, req *serializers.GetPagingExamReq) ([]*serializers.Exam, *paging.Pagination, error) {
@@ -42,13 +51,19 @@ func (p *ExamService) GetPaging(ctx context.Context, req *serializers.GetPagingE
 	if err != nil {
 		return nil, nil, err
 	}
-
+	type arrayID struct {
+		ID uint
+	}
 	var examsFormat []*serializers.Exam
 	for _, ex := range exams {
 		exFormat := &serializers.Exam{}
 		utils.Copy(exFormat, ex)
-		exFormat.TotalQuestions = uint(len(ex.ExamQuestions))
-
+		questions := []uint{}
+		for _, item := range ex.ExamQuestions {
+			questions = append(questions, item.ID)
+		}
+		exFormat.TotalQuestions = uint(len(questions))
+		exFormat.TotalScore = p.repoQuestion.GetTotalScore(ctx, questions)
 		examsFormat = append(examsFormat, exFormat)
 
 	}
@@ -121,12 +136,8 @@ func (p *ExamService) AddQuestion(ctx context.Context, id, question_id, userID u
 		logger.Errorf("AddQuestion.GetExam fail, id: %s, error: %s", id, err)
 		return err
 	}
-	exitExamQuestion, err := p.repo.GetExamQuestionByID(ctx, exam.ID, question.ID)
+	exitExamQuestion, _ := p.repo.GetExamQuestionByID(ctx, exam.ID, question.ID)
 
-	if err != nil {
-		logger.Errorf("AddQuestion.GetExamQuestion fail, id: %s, error: %s", id, err)
-		return err
-	}
 	if exitExamQuestion != nil {
 		logger.Errorf("AddQuestion.Exam fail, id: %s, error: %s", id, err)
 		return errors.ErrorExistName.New()

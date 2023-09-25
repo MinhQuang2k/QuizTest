@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 
+	"quiztest/app/constant"
 	"quiztest/app/interfaces"
 	"quiztest/app/models"
 	"quiztest/app/serializers"
@@ -33,7 +34,7 @@ func (r *ExamRepo) GetPaging(ctx context.Context, req *serializers.GetPagingExam
 		Joins("JOIN categories ON categories.id = subjects.category_id").
 		Where("categories.user_id = ?", req.UserID)
 
-	order := "exams.created_at"
+	order := "exams.created_at DESC"
 	if req.Name != "" {
 		query = query.Where("name LIKE ?", "%"+req.Name+"%")
 	}
@@ -41,11 +42,12 @@ func (r *ExamRepo) GetPaging(ctx context.Context, req *serializers.GetPagingExam
 	if req.SubjectID != 0 {
 		query = query.Where("subject_id = ?", req.SubjectID)
 	}
-	if req.OrderBy != "" {
-		order = req.OrderBy
-		if req.OrderDesc {
-			order += " DESC"
-		}
+	if req.SortBy == constant.SortBy["recent"] {
+		order = "exams.created_at DESC"
+	}
+
+	if req.SortBy == constant.SortBy["alphabet"] {
+		order = "exams.name"
 	}
 
 	pagination := paging.New(req.Page, req.Limit, total)
@@ -132,6 +134,11 @@ func (r *ExamRepo) UpdateExamQuestion(ctx context.Context, examQuestion *models.
 func (r *ExamRepo) Delete(ctx context.Context, exam *models.Exam) error {
 	ctx, cancel := context.WithTimeout(ctx, config.DatabaseTimeout)
 	defer cancel()
+
+	if err := r.db.GetInstance().Where("exam_id = ?", exam.Model.ID).Delete(&models.ExamQuestion{}); err == nil {
+		return errors.ErrorDatabaseDelete.New()
+	}
+
 	rowsAffected := r.db.GetInstance().Delete(&exam).RowsAffected
 
 	if rowsAffected == 0 {

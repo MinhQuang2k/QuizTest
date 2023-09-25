@@ -2,14 +2,11 @@ package serializers
 
 import (
 	"quiztest/pkg/paging"
-	"time"
 )
 
 type GroupQuestion struct {
-	ID        uint      `json:"id"`
-	Name      string    `json:"name"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID   uint   `json:"id"`
+	Name string `json:"name"`
 }
 
 type GetPagingGroupQuestionReq struct {

@@ -164,7 +164,7 @@ func (p *ExamAPI) GetByID(c *gin.Context) gohttp.Response {
 		}
 	}
 
-	utils.Copy(&res, &exam)
+	utils.Copy(&res, exam)
 	utils.Copy(&res.Questions, &questions)
 	return gohttp.Response{
 		Error: errors.Success.New(),
