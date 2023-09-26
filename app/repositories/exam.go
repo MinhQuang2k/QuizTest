@@ -36,7 +36,7 @@ func (r *ExamRepo) GetPaging(ctx context.Context, req *serializers.GetPagingExam
 
 	order := "exams.created_at DESC"
 	if req.Name != "" {
-		query = query.Where("name LIKE ?", "%"+req.Name+"%")
+		query = query.Where("exams.name LIKE ?", "%"+req.Name+"%")
 	}
 
 	if req.SubjectID != 0 {
