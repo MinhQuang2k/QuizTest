@@ -17,3 +17,20 @@ type Room struct {
 	Status                bool   `json:"status"`
 	ExamID                uint   `json:"exam_id"`
 }
+
+// {
+//     "name": "vfdvf",
+//     "note": "vffvf",
+//     "exam_id": 10342,
+//     "start_at": null,
+//     "end_at": null,
+//     "type_code": 0,
+//     "attempt_limit": 0,
+//     "access_codes": [],
+//     "requires": [],
+//     "is_active": true,
+//     "link_room_id": "cEJ3VH0OJFAOM1RcRyYED0F4SHIX",
+//     "pass_mark": 80,
+//     "score_shown": [],
+//     "result_shown": []
+// }
