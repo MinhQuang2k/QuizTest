@@ -66,7 +66,7 @@ func (p *RoomAPI) GetPaging(c *gin.Context) gohttp.Response {
 		}
 	}
 
-	utils.Copy(&res.Rooms, &rooms)
+	utils.Copy(&res.Rooms, rooms)
 	res.Pagination = pagination
 	return gohttp.Response{
 		Error: errors.Success.New(),

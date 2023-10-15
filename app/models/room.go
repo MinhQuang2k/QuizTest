@@ -1,36 +1,24 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/datatypes"
+	"gorm.io/gorm"
+)
 
 type Room struct {
 	gorm.Model
-	Name                  string `json:"name"`
-	PassMark              string `json:"pass_mark"`
-	IsRequireCode         bool   `json:"is_require_code"`
-	IsRequireEmail        bool   `json:"is_require_email"`
-	IsRequireFullName     bool   `json:"is_require_full_name"`
-	IsRequirePhone        bool   `json:"is_require_phone"`
-	IsRequireGroup        bool   `json:"is_require_group"`
-	IsRequireIdentifyCode bool   `json:"is_require_identify_code"`
-	CodeRoom              string `json:"code_room"`
-	LinkRoomExam          string `json:"link_room_exam"`
-	Status                bool   `json:"status"`
-	ExamID                uint   `json:"exam_id"`
+	Name         string         `json:"name"`
+	AttemptLimit uint           `json:"attempt_limit"`
+	TypeCode     uint           `json:"type_code"`
+	PassMark     uint           `json:"pass_mark"`
+	AccessCodes  datatypes.JSON `json:"access_codes" gorm:"type:json"`
+	Requires     datatypes.JSON `json:"requires" gorm:"type:json"`
+	IsActive     bool           `json:"is_active" gorm:"default:false"`
+	LinkRoomId   string         `json:"link_room_id"`
+	ScoreShown   datatypes.JSON `json:"score_shown" gorm:"type:json"`
+	ResultShown  datatypes.JSON `json:"result_shown" gorm:"type:json"`
+	EndAt        string         `json:"end_at"`
+	StartAt      string         `json:"start_at"`
+	Note         string         `json:"note"`
+	ExamID       uint           `json:"exam_id"`
 }
-
-// {
-//     "name": "vfdvf",
-//     "note": "vffvf",
-//     "exam_id": 10342,
-//     "start_at": null,
-//     "end_at": null,
-//     "type_code": 0,
-//     "attempt_limit": 0,
-//     "access_codes": [],
-//     "requires": [],
-//     "is_active": true,
-//     "link_room_id": "cEJ3VH0OJFAOM1RcRyYED0F4SHIX",
-//     "pass_mark": 80,
-//     "score_shown": [],
-//     "result_shown": []
-// }

@@ -4,14 +4,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/dig"
 
-	"github.com/gin-contrib/cors"
 	"quiztest/app/api"
-	"quiztest/app/cache"
 	"quiztest/app/dbs"
 	"quiztest/app/repositories"
 	"quiztest/app/router"
 	"quiztest/app/services"
 	"quiztest/pkg/logger"
+
+	"github.com/gin-contrib/cors"
 )
 
 // BuildContainer build dig container
@@ -30,10 +30,10 @@ func BuildContainer() *dig.Container {
 	}
 
 	// Inject cache
-	err = cache.Inject(container)
-	if err != nil {
-		logger.Error("Failed to inject cache", err)
-	}
+	// err = cache.Inject(container)
+	// if err != nil {
+	// 	logger.Error("Failed to inject cache", err)
+	// }
 
 	// Inject repositories
 	err = repositories.Inject(container)

@@ -10,6 +10,8 @@ import (
 	"quiztest/app/serializers"
 	"quiztest/pkg/paging"
 	"quiztest/pkg/utils"
+
+	"github.com/google/uuid"
 )
 
 type RoomService struct {
@@ -41,7 +43,7 @@ func (p *RoomService) GetPaging(ctx context.Context, req *serializers.GetPagingR
 func (p *RoomService) Create(ctx context.Context, req *serializers.CreateRoomReq) error {
 	var room models.Room
 	utils.Copy(&room, req)
-
+	room.LinkRoomId = uuid.New().String()
 	err := p.repo.Create(ctx, &room)
 	if err != nil {
 		logger.Errorf("Create fail, error: %s", err)
