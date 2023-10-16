@@ -1,0 +1,10 @@
+result:
+    user_id: uint,
+    room_id: uint,
+    answers: JSON,
+    total_answer: uint,
+    total_correct_answer: uint,
+    total_responses_made: uint,
+    score: uint,
+    total_time: uint,
+    status: uint,
