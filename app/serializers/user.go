@@ -5,12 +5,14 @@ import (
 )
 
 type User struct {
+	FullName  string    `json:"full_name"`
 	Email     string    `json:"email"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type RegisterReq struct {
+	FullName string `json:"full_name"`
 	Email    string `json:"email" validate:"required"`
 	Password string `json:"password" validate:"required,password,min=8,max=40"`
 }

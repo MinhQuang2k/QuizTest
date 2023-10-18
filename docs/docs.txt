@@ -4,7 +4,10 @@ result:
     answers: JSON,
     total_answer: uint,
     total_correct_answer: uint,
-    total_responses_made: uint,
+    total_doing_answer: uint,
     score: uint,
-    total_time: uint,
-    status: uint,
+    status: string,
+    start_at: time,
+    end_at: time
+    create_at: time,
+    update_at: time,

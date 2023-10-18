@@ -29,12 +29,6 @@ func BuildContainer() *dig.Container {
 		logger.Error("Failed to inject database", err)
 	}
 
-	// Inject cache
-	// err = cache.Inject(container)
-	// if err != nil {
-	// 	logger.Error("Failed to inject cache", err)
-	// }
-
 	// Inject repositories
 	err = repositories.Inject(container)
 	if err != nil {
