@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-
 	"quiztest/pkg/errors"
 	"quiztest/pkg/logger"
 
@@ -84,7 +83,7 @@ func (p *ExamService) Create(ctx context.Context, req *serializers.CreateExamReq
 
 	err := p.repo.Create(ctx, &exam, req.UserID)
 	if err != nil {
-		logger.Errorf("Create fail, error: %s", err)
+		logger.Error(err)
 		return err
 	}
 
@@ -94,14 +93,14 @@ func (p *ExamService) Create(ctx context.Context, req *serializers.CreateExamReq
 func (p *ExamService) Update(ctx context.Context, id uint, req *serializers.UpdateExamReq) error {
 	exam, err := p.repo.GetByID(ctx, id, req.UserID)
 	if err != nil {
-		logger.Errorf("Update.GetByID fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return err
 	}
 
 	utils.Copy(exam, req)
 	err = p.repo.Update(ctx, exam)
 	if err != nil {
-		logger.Errorf("Update fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return err
 	}
 
@@ -111,13 +110,13 @@ func (p *ExamService) Update(ctx context.Context, id uint, req *serializers.Upda
 func (p *ExamService) Delete(ctx context.Context, id uint, userID uint) error {
 	exam, err := p.repo.GetByID(ctx, id, userID)
 	if err != nil {
-		logger.Errorf("Delete.GetByID fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return err
 	}
 
 	err = p.repo.Delete(ctx, exam)
 	if err != nil {
-		logger.Errorf("Delete fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return err
 	}
 
@@ -127,19 +126,19 @@ func (p *ExamService) Delete(ctx context.Context, id uint, userID uint) error {
 func (p *ExamService) AddQuestion(ctx context.Context, id, question_id, userID uint) error {
 	question, err := p.repoQuestion.GetByID(ctx, question_id, userID)
 	if err != nil {
-		logger.Errorf("AddQuestion.GetQuestion fail, id: %s, error: %s", question_id, err)
+		logger.Error(err)
 		return err
 	}
 
 	exam, err := p.repo.GetByID(ctx, id, userID)
 	if err != nil {
-		logger.Errorf("AddQuestion.GetExam fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return err
 	}
 	exitExamQuestion, _ := p.repo.GetExamQuestionByID(ctx, exam.ID, question.ID)
 
 	if exitExamQuestion != nil {
-		logger.Errorf("AddQuestion.Exam fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return errors.ErrorExistName.New()
 	}
 
@@ -149,7 +148,7 @@ func (p *ExamService) AddQuestion(ctx context.Context, id, question_id, userID u
 
 	err = p.repo.Update(ctx, exam)
 	if err != nil {
-		logger.Errorf("Update fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return err
 	}
 
@@ -159,25 +158,25 @@ func (p *ExamService) AddQuestion(ctx context.Context, id, question_id, userID u
 func (p *ExamService) DeleteQuestion(ctx context.Context, id, question_id, userID uint) error {
 	question, err := p.repoQuestion.GetByID(ctx, question_id, userID)
 	if err != nil {
-		logger.Errorf("AddQuestion.GetQuestion fail, id: %s, error: %s", question_id, err)
+		logger.Error(err)
 		return err
 	}
 
 	exam, err := p.repo.GetByID(ctx, id, userID)
 	if err != nil {
-		logger.Errorf("AddQuestion.GetExam fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return err
 	}
 	examQuestion, err := p.repo.GetExamQuestionByID(ctx, exam.ID, question.ID)
 
 	if err != nil {
-		logger.Errorf("AddQuestion.Exam fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return errors.ErrorExistName.New()
 	}
 
 	err = p.repo.DeleteExamQuestion(ctx, examQuestion)
 	if err != nil {
-		logger.Errorf("Update fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return err
 	}
 
@@ -187,13 +186,13 @@ func (p *ExamService) DeleteQuestion(ctx context.Context, id, question_id, userI
 func (p *ExamService) MoveQuestion(ctx context.Context, req *serializers.MoveExamReq) error {
 	examQuestion, err := p.repo.GetExamQuestionByID(ctx, req.ExamID, req.QuestionID)
 	if err != nil {
-		logger.Errorf("AddQuestion.Exam fail, id: %s, error: %s", req.QuestionID, err)
+		logger.Error(err)
 		return err
 	}
 
 	examQuestionMove, err := p.repo.GetExamQuestionByID(ctx, req.ExamID, req.QuestionMoveID)
 	if err != nil {
-		logger.Errorf("AddQuestion.Exam fail, id: %s, error: %s", req.QuestionMoveID, err)
+		logger.Error(err)
 		return err
 	}
 
@@ -202,13 +201,13 @@ func (p *ExamService) MoveQuestion(ctx context.Context, req *serializers.MoveExa
 
 	err = p.repo.UpdateExamQuestion(ctx, examQuestion)
 	if err != nil {
-		logger.Errorf("Update fail, id: %s, error: %s", req.QuestionMoveID, err)
+		logger.Error(err)
 		return err
 	}
 
 	err = p.repo.UpdateExamQuestion(ctx, examQuestionMove)
 	if err != nil {
-		logger.Errorf("Update fail, id: %s, error: %s", req.QuestionID, err)
+		logger.Error(err)
 		return err
 	}
 

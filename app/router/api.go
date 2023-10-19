@@ -29,6 +29,7 @@ func RegisterAPI(r *gin.Engine, container *dig.Container) error {
 			authRoute.POST("/refresh", refreshAuthMiddleware, wrapper.Wrap(userAPI.RefreshToken))
 			authRoute.GET("/me", authMiddleware, wrapper.Wrap(userAPI.GetMe))
 			authRoute.PUT("/change-password", authMiddleware, wrapper.Wrap(userAPI.ChangePassword))
+			authRoute.POST("/send-mail", wrapper.Wrap(userAPI.SendMail))
 		}
 
 		//--------------------------------API-----------------------------------
@@ -98,7 +99,21 @@ func RegisterAPI(r *gin.Engine, container *dig.Container) error {
 			roomRoute.POST("", authMiddleware, wrapper.Wrap(roomAPI.Create))
 			roomRoute.PUT("/:id", authMiddleware, wrapper.Wrap(roomAPI.Update))
 			roomRoute.DELETE("/:id", authMiddleware, wrapper.Wrap(roomAPI.Delete))
+			// roomRoute.GET("/exam/:id", authMiddleware, wrapper.Wrap(roomAPI.Delete))
+			// roomRoute.GET("/result/:id", authMiddleware, wrapper.Wrap(roomAPI.Delete))
 		}
+
+		// Candidate
+		// candidateRoute := api1.Group("/rooms")
+		// {
+		// 	candidateRoute.POST("/create", authMiddleware, wrapper.Wrap(roomAPI.GetPaging))
+		// 	candidateRoute.POST("/submit", authMiddleware, wrapper.Wrap(roomAPI.Create))
+		// }
+
+		// submit
+		// get list exam
+		//
+
 		return nil
 	})
 

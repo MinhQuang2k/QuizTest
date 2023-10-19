@@ -20,8 +20,9 @@ func Migrate(container *dig.Container) error {
 		Question := models.Question{}
 		Subject := models.Subject{}
 		Room := models.Room{}
+		Candidate := models.Candidate{}
 
-		db.GetInstance().AutoMigrate(&User, &GroupQuestion, &Category, &Subject, &Exam, &Question, &ExamQuestion, &Room)
+		db.GetInstance().AutoMigrate(&User, &GroupQuestion, &Category, &Subject, &Exam, &Question, &ExamQuestion, &Room, &Candidate)
 
 		return nil
 	})

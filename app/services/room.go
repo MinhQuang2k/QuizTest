@@ -46,7 +46,7 @@ func (p *RoomService) Create(ctx context.Context, req *serializers.CreateRoomReq
 	room.LinkRoomId = uuid.New().String()
 	err := p.repo.Create(ctx, &room)
 	if err != nil {
-		logger.Errorf("Create fail, error: %s", err)
+		logger.Error(err)
 		return err
 	}
 
@@ -56,14 +56,14 @@ func (p *RoomService) Create(ctx context.Context, req *serializers.CreateRoomReq
 func (p *RoomService) Update(ctx context.Context, id uint, req *serializers.UpdateRoomReq) error {
 	room, err := p.repo.GetByID(ctx, id, req.UserID)
 	if err != nil {
-		logger.Errorf("Update.GetByID fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return err
 	}
 
 	utils.Copy(room, req)
 	err = p.repo.Update(ctx, room)
 	if err != nil {
-		logger.Errorf("Update fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return err
 	}
 
@@ -73,13 +73,13 @@ func (p *RoomService) Update(ctx context.Context, id uint, req *serializers.Upda
 func (p *RoomService) Delete(ctx context.Context, id uint, userID uint) error {
 	room, err := p.repo.GetByID(ctx, id, userID)
 	if err != nil {
-		logger.Errorf("Delete.GetByID fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return err
 	}
 
 	err = p.repo.Delete(ctx, room)
 	if err != nil {
-		logger.Errorf("Delete fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return err
 	}
 

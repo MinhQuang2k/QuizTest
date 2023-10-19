@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"quiztest/pkg/logger"
 
@@ -17,20 +18,21 @@ import (
 
 type UserService struct {
 	repo interfaces.IUserRepository
+	mail interfaces.IMail
 }
 
-func NewUserService(repo interfaces.IUserRepository) interfaces.IUserService {
-	return &UserService{repo: repo}
+func NewUserService(repo interfaces.IUserRepository, mail interfaces.IMail) interfaces.IUserService {
+	return &UserService{repo: repo, mail: mail}
 }
 
 func (u *UserService) Login(ctx context.Context, req *serializers.LoginReq) (string, string, error) {
 	user, err := u.repo.GetByEmail(ctx, req.Email)
 	if err != nil {
-		logger.Errorf("Login.GetByEmail fail, email: %s, error: %s", req.Email, err)
+		logger.Error(err)
 		return "", "", err
 	}
 
-	passErr := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
+	passErr := utils.VerifyPassword(user.Password, req.Password)
 	if passErr == bcrypt.ErrMismatchedHashAndPassword && passErr != nil {
 		return "", "", errors.New("wrong password")
 	}
@@ -50,7 +52,7 @@ func (u *UserService) Register(ctx context.Context, req *serializers.RegisterReq
 	utils.Copy(&user, &req)
 	err := u.repo.Create(ctx, &user)
 	if err != nil {
-		logger.Errorf("Register.Create fail, email: %s, error: %s", req.Email, err)
+		logger.Error(err)
 		return err
 	}
 	return nil
@@ -59,7 +61,7 @@ func (u *UserService) Register(ctx context.Context, req *serializers.RegisterReq
 func (u *UserService) GetByID(ctx context.Context, id uint) (*models.User, error) {
 	user, err := u.repo.GetByID(ctx, id)
 	if err != nil {
-		logger.Errorf("GetByID fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return nil, err
 	}
 
@@ -69,7 +71,7 @@ func (u *UserService) GetByID(ctx context.Context, id uint) (*models.User, error
 func (u *UserService) RefreshToken(ctx context.Context, userID uint) (string, error) {
 	user, err := u.repo.GetByID(ctx, userID)
 	if err != nil {
-		logger.Errorf("RefreshToken.GetByID fail, id: %s, error: %s", userID, err)
+		logger.Error(err)
 		return "", err
 	}
 
@@ -85,11 +87,11 @@ func (u *UserService) RefreshToken(ctx context.Context, userID uint) (string, er
 func (u *UserService) ChangePassword(ctx context.Context, id uint, req *serializers.ChangePasswordReq) error {
 	user, err := u.repo.GetByID(ctx, id)
 	if err != nil {
-		logger.Errorf("ChangePassword.GetByID fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return err
 	}
 
-	passErr := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
+	passErr := utils.VerifyPassword(user.Password, req.Password)
 	if passErr == bcrypt.ErrMismatchedHashAndPassword && passErr != nil {
 		return errors.New("wrong password")
 	}
@@ -97,9 +99,21 @@ func (u *UserService) ChangePassword(ctx context.Context, id uint, req *serializ
 	user.Password = utils.HashAndSalt([]byte(req.NewPassword))
 	err = u.repo.Update(ctx, user)
 	if err != nil {
-		logger.Errorf("ChangePassword.Update fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return err
 	}
 
 	return nil
+}
+
+func (u *UserService) SendMail(ctx context.Context) error {
+	data, err := utils.ReadFileRoot("./app/mail/confirm.html")
+	if err != nil {
+		logger.Error(err)
+		return err
+	}
+
+	emailContent := strings.Replace(string(data), "codeCorfirm", "111111", 1)
+	err = u.mail.SendMail(emailContent, "Confirm create Account", "quangnm3@rikkeisoft.com")
+	return err
 }

@@ -2,6 +2,10 @@ package utils
 
 import (
 	"encoding/json"
+	"errors"
+	"io/ioutil"
+	"path/filepath"
+	"quiztest/pkg/logger"
 	"strconv"
 )
 
@@ -32,4 +36,16 @@ func IsUniqueArray(arr []string) bool {
 	}
 
 	return len(m) == len(arr)
+}
+
+func ReadFileRoot(path string) ([]byte, error) {
+	if &path == nil || path == "" {
+		return nil, errors.New("no path")
+	}
+	absPath, _ := filepath.Abs(path)
+	data, err := ioutil.ReadFile(absPath)
+	if err != nil {
+		logger.Error(err)
+	}
+	return data, err
 }

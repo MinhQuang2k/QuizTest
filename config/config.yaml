@@ -2,8 +2,10 @@ environment: production
 port: 8080
 auth_secret: admin
 
-database_uri: root:@tcp(localhost:3306)/new?parseTime=true
+database_uri: root:@tcp(localhost:3306)/quiztest?parseTime=true
 
-redis_uri: localhost:6379
-redis_password:
-redis_db: 0
+email_from: minhquang2kn@gmail.com
+smtp_host: sandbox.smtp.mailtrap.io
+smtp_user: 9c9bdb99356b30
+smtp_pass: 9a6d9bb3742842
+smtp_port: 587

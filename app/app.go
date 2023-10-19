@@ -6,6 +6,7 @@ import (
 
 	"quiztest/app/api"
 	"quiztest/app/dbs"
+	"quiztest/app/mail"
 	"quiztest/app/repositories"
 	"quiztest/app/router"
 	"quiztest/app/services"
@@ -18,15 +19,16 @@ import (
 func BuildContainer() *dig.Container {
 	container := dig.New()
 
-	// auth, err := InitAuth()
-	// _ = container.Provide(func() jwt.IJWTAuth {
-	// 	return auth
-	// })
-
 	// Inject database
 	err := dbs.Inject(container)
 	if err != nil {
 		logger.Error("Failed to inject database", err)
+	}
+
+	// Inject mail
+	err = mail.Inject(container)
+	if err != nil {
+		logger.Error("Failed to inject mail", err)
 	}
 
 	// Inject repositories

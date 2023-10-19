@@ -25,7 +25,7 @@ func (p *SubjectService) Create(ctx context.Context, req *serializers.CreateSubj
 
 	err := p.repo.Create(ctx, &subject)
 	if err != nil {
-		logger.Errorf("Create fail, error: %s", err)
+		logger.Error(err)
 		return err
 	}
 
@@ -35,13 +35,13 @@ func (p *SubjectService) Create(ctx context.Context, req *serializers.CreateSubj
 func (p *SubjectService) Move(ctx context.Context, id uint, req *serializers.MoveSubjectReq) error {
 	subject, err := p.repo.GetByID(ctx, id, req.CategoryID)
 	if err != nil {
-		logger.Errorf("Move.GetByID fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return err
 	}
 
 	err = p.repo.Move(ctx, req, subject)
 	if err != nil {
-		logger.Errorf("Move fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return err
 	}
 
@@ -50,14 +50,14 @@ func (p *SubjectService) Move(ctx context.Context, id uint, req *serializers.Mov
 func (p *SubjectService) Update(ctx context.Context, id uint, req *serializers.UpdateSubjectReq) error {
 	subject, err := p.repo.GetByID(ctx, id, req.CategoryID)
 	if err != nil {
-		logger.Errorf("Update.GetByID fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return err
 	}
 
 	utils.Copy(subject, req)
 	err = p.repo.Update(ctx, subject)
 	if err != nil {
-		logger.Errorf("Update fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return err
 	}
 
@@ -67,13 +67,13 @@ func (p *SubjectService) Update(ctx context.Context, id uint, req *serializers.U
 func (p *SubjectService) Delete(ctx context.Context, id uint, CategoryID uint, userID uint) error {
 	subject, err := p.repo.GetByID(ctx, id, CategoryID)
 	if err != nil {
-		logger.Errorf("Delete.GetByID fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return err
 	}
 
 	err = p.repo.Delete(ctx, subject)
 	if err != nil {
-		logger.Errorf("Delete fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return err
 	}
 

@@ -3,7 +3,6 @@ package repositories
 import (
 	"context"
 
-	"quiztest/app/constant"
 	"quiztest/app/interfaces"
 	"quiztest/app/models"
 	"quiztest/app/serializers"
@@ -42,11 +41,11 @@ func (r *ExamRepo) GetPaging(ctx context.Context, req *serializers.GetPagingExam
 	if req.SubjectID != 0 {
 		query = query.Where("subject_id = ?", req.SubjectID)
 	}
-	if req.SortBy == constant.SortBy["recent"] {
+	if req.SortBy == SortBy["RECENT"] {
 		order = "exams.created_at DESC"
 	}
 
-	if req.SortBy == constant.SortBy["alphabet"] {
+	if req.SortBy == SortBy["ALPHABET"] {
 		order = "exams.name"
 	}
 

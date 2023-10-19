@@ -3,11 +3,10 @@ package services
 import (
 	"context"
 
-	"quiztest/pkg/logger"
-
 	"quiztest/app/interfaces"
 	"quiztest/app/models"
 	"quiztest/app/serializers"
+	"quiztest/pkg/logger"
 	"quiztest/pkg/paging"
 	"quiztest/pkg/utils"
 )
@@ -28,7 +27,7 @@ func (p *CategoryService) Create(ctx context.Context, req *serializers.CreateCat
 	category.Subjects = subjects
 
 	if err := p.repo.Create(ctx, &category); err != nil {
-		logger.Errorf("Create fail, error: %s", err)
+		logger.Error(err)
 		return err
 	}
 
@@ -65,14 +64,14 @@ func (p *CategoryService) GetAll(ctx context.Context, userID uint) ([]*models.Ca
 func (p *CategoryService) Update(ctx context.Context, id uint, req *serializers.UpdateCategoryReq) error {
 	category, err := p.repo.GetByID(ctx, id, req.UserID)
 	if err != nil {
-		logger.Errorf("Update.GetByID fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return err
 	}
 
 	utils.Copy(category, req)
 	err = p.repo.Update(ctx, category)
 	if err != nil {
-		logger.Errorf("Update fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return err
 	}
 
@@ -82,13 +81,13 @@ func (p *CategoryService) Update(ctx context.Context, id uint, req *serializers.
 func (p *CategoryService) Delete(ctx context.Context, id uint, userID uint) error {
 	category, err := p.repo.GetByID(ctx, id, userID)
 	if err != nil {
-		logger.Errorf("Delete.GetByID fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return err
 	}
 
 	err = p.repo.Delete(ctx, category)
 	if err != nil {
-		logger.Errorf("Delete fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return err
 	}
 

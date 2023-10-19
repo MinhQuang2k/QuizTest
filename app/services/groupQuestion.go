@@ -52,7 +52,7 @@ func (p *GroupQuestionService) Create(ctx context.Context, req *serializers.Crea
 
 	err := p.repo.Create(ctx, &groupQuestion)
 	if err != nil {
-		logger.Errorf("Create fail, error: %s", err)
+		logger.Error(err)
 		return err
 	}
 
@@ -62,14 +62,14 @@ func (p *GroupQuestionService) Create(ctx context.Context, req *serializers.Crea
 func (p *GroupQuestionService) Update(ctx context.Context, id uint, req *serializers.UpdateGroupQuestionReq) error {
 	groupQuestion, err := p.repo.GetByID(ctx, id, req.UserID)
 	if err != nil {
-		logger.Errorf("Update.GetByID fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return err
 	}
 
 	utils.Copy(groupQuestion, req)
 	err = p.repo.Update(ctx, groupQuestion)
 	if err != nil {
-		logger.Errorf("Update fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return err
 	}
 
@@ -79,13 +79,13 @@ func (p *GroupQuestionService) Update(ctx context.Context, id uint, req *seriali
 func (p *GroupQuestionService) Delete(ctx context.Context, id uint, userID uint) error {
 	groupQuestion, err := p.repo.GetByID(ctx, id, userID)
 	if err != nil {
-		logger.Errorf("Delete.GetByID fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return err
 	}
 
 	err = p.repo.Delete(ctx, groupQuestion)
 	if err != nil {
-		logger.Errorf("Delete fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return err
 	}
 

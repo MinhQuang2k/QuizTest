@@ -44,7 +44,7 @@ func (p *QuestionService) Create(ctx context.Context, req *serializers.CreateQue
 
 	err := p.repo.Create(ctx, &question)
 	if err != nil {
-		logger.Errorf("Create fail, error: %s", err)
+		logger.Error(err)
 		return nil, err
 	}
 
@@ -54,7 +54,7 @@ func (p *QuestionService) Create(ctx context.Context, req *serializers.CreateQue
 func (p *QuestionService) Clones(ctx context.Context, userID uint, questionClonesID uint) (*models.Question, error) {
 	question, err := p.repo.Clones(ctx, userID, questionClonesID)
 	if err != nil {
-		logger.Errorf("Create fail, error: %s", err)
+		logger.Error(err)
 		return nil, err
 	}
 
@@ -64,14 +64,14 @@ func (p *QuestionService) Clones(ctx context.Context, userID uint, questionClone
 func (p *QuestionService) Update(ctx context.Context, id uint, req *serializers.UpdateQuestionReq) error {
 	question, err := p.repo.GetByID(ctx, id, req.UserID)
 	if err != nil {
-		logger.Errorf("Update.GetByID fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return err
 	}
 
 	utils.Copy(question, req)
 	err = p.repo.Update(ctx, question, req.UserID)
 	if err != nil {
-		logger.Errorf("Update fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return err
 	}
 
@@ -81,13 +81,13 @@ func (p *QuestionService) Update(ctx context.Context, id uint, req *serializers.
 func (p *QuestionService) Delete(ctx context.Context, id uint, userID uint) error {
 	question, err := p.repo.GetByID(ctx, id, userID)
 	if err != nil {
-		logger.Errorf("Delete.GetByID fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return err
 	}
 
 	err = p.repo.Delete(ctx, question)
 	if err != nil {
-		logger.Errorf("Delete fail, id: %s, error: %s", id, err)
+		logger.Error(err)
 		return err
 	}
 

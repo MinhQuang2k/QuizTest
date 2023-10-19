@@ -128,3 +128,15 @@ func (u *UserAPI) ChangePassword(c *gin.Context) gohttp.Response {
 		Error: errors.Success.New(),
 	}
 }
+
+func (u *UserAPI) SendMail(c *gin.Context) gohttp.Response {
+	err := u.service.SendMail(c)
+	if err != nil {
+		return gohttp.Response{
+			Error: err,
+		}
+	}
+	return gohttp.Response{
+		Error: errors.Success.New(),
+	}
+}

@@ -18,13 +18,15 @@ const (
 )
 
 type Schema struct {
-	Environment   string `env:"environment"`
-	Port          int    `env:"port"`
-	AuthSecret    string `env:"auth_secret"`
-	DatabaseURI   string `env:"database_uri"`
-	RedisURI      string `env:"redis_uri"`
-	RedisPassword string `env:"redis_password"`
-	RedisDB       int    `env:"redis_db"`
+	Environment string `env:"environment"`
+	Port        int    `env:"port"`
+	AuthSecret  string `env:"auth_secret"`
+	DatabaseURI string `env:"database_uri"`
+	SmtpHost    string `env:"smtp_host"`
+	SmtpUser    string `env:"smtp_user"`
+	SmtpPass    string `env:"smtp_pass"`
+	SmtpPort    int    `env:"smtp_port"`
+	EmailFrom   string `env:"email_from"`
 }
 
 var (

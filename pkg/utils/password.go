@@ -15,3 +15,7 @@ func HashAndSalt(pass []byte) string {
 
 	return string(hashed)
 }
+
+func VerifyPassword(hashedPassword string, candidatePassword string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(candidatePassword))
+}

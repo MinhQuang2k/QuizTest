@@ -3,7 +3,6 @@ package repositories
 import (
 	"context"
 
-	"quiztest/app/constant"
 	"quiztest/app/interfaces"
 	"quiztest/app/models"
 	"quiztest/app/serializers"
@@ -40,11 +39,11 @@ func (r *QuestionRepo) GetPaging(ctx context.Context, req *serializers.GetPaging
 		query = query.Where("questions.group_question_id = ?", req.GroupQuestionID)
 	}
 
-	if req.SortBy == constant.SortBy["recent"] {
+	if req.SortBy == SortBy["RECENT"] {
 		order = "questions.created_at DESC"
 	}
 
-	if req.SortBy == constant.SortBy["alphabet"] {
+	if req.SortBy == SortBy["ALPHABET"] {
 		order = "questions.content"
 	}
 
